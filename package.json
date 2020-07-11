@@ -7,6 +7,10 @@
     "test": "test"
   },
   "scripts": {
+    "start": "node $npm_package_main",
+    "calendar": "node ./routers/calendar_tests.js",
+    "twitter": "node ./routers/twitter_test.js",
+    "node": "node",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -25,6 +29,7 @@
     "express": "^4.17.1",
     "express-session": "^1.17.1",
     "oauth": "^0.9.15",
+    "opener": "^1.5.1",
     "twitter": "^1.7.1"
   }
 }
