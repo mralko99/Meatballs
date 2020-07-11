@@ -1,0 +1,30 @@
+{
+  "name": "proggetto-reti-di-calcolatori",
+  "version": "1.0.0",
+  "description": "Sos",
+  "main": "app.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mralko99/Proggetto-Reti-di-Calcolatori.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mralko99/Proggetto-Reti-di-Calcolatori/issues"
+  },
+  "homepage": "https://github.com/mralko99/Proggetto-Reti-di-Calcolatori#readme",
+  "dependencies": {
+    "cookie-parser": "^1.4.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "express-session": "^1.17.1",
+    "oauth": "^0.9.15",
+    "twitter": "^1.7.1"
+  }
+}
