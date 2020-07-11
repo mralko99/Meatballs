@@ -8,6 +8,8 @@ const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`Listening on port ${port}...`));
 //scrivendo su terminale "$env:PORT = 5000" la macchina si metterà ad ascoltare sulla porta 5000
 
+
+
 app.get('/api/composition', (req, res) => {
 
   var unirest = require("unirest");
@@ -17,11 +19,9 @@ app.get('/api/composition', (req, res) => {
   console.log('ok2');
   var info = req.query.id;  // example of terminal request: curl localhost:5000/api/composition?id=protein%20pepperoni
 	                          // => answer (on terminal): In 1 serving pepperoni, there are 6.35 g of Protein. This amount covers 13% of your daily needs of Protein.
-
   request.query({
     "q": info
   });
-
 
   request.headers({
     "x-rapidapi-host": "spoonacular-recipe-food-nutrition-v1.p.rapidapi.com",
@@ -29,15 +29,10 @@ app.get('/api/composition', (req, res) => {
     "useQueryString": true
   });
 
-
-
   request.end(function (result) {
   	if (result.error) throw new Error(result.error);
     res.send(result.body.answer);
   });
-
-
-
 });
 
 
@@ -46,11 +41,8 @@ app.get('/api/composition', (req, res) => {
 //Restituisce 3 pasti (per una giornata), date le calorie desiderate 
 app.get('/api/mealplans', (req, res) => {
 	var unirest = require("unirest");
-
 	var request = unirest("GET", "https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/recipes/mealplans/generate");
-
 	var calories = req.query.calories;  //example of terminal request: curl localhost:5000/api/mealplans?calories=4000
-
 
 	request.query({
 		"timeFrame": "day",
@@ -65,13 +57,10 @@ app.get('/api/mealplans', (req, res) => {
 		"useQueryString": true
 	});
 
-
 	request.end(function (result) {
 		if (result.error) throw new Error(result.error);
 		var meals = result.body.meals;
 		//console.log(meals); ok, meals is a json var containing the array of all possible meals
-
-		
 		res.send("\n\n\nHere are your three meals: \n"+ result.body.meals[0].title + "\n" + result.body.meals[1].title + "\n" + result.body.meals[2].title + "\nHere are the nutrional values: \n" + "Calories = " + result.body.nutrients.calories + "\nProteins =  " + result.body.nutrients.protein +  "\nFat =  " + result.body.nutrients.fat + "\nCarbohydrates=  " + result.body.nutrients.carbohydrates       ); 
 		//console.log(result.body);
 	});
