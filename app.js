@@ -43,7 +43,7 @@ app.get('/api/composition', (req, res) => {
 
 
 
-
+//Restituisce 3 pasti (per una giornata), date le calorie desiderate 
 app.get('/api/mealplans', (req, res) => {
 	var unirest = require("unirest");
 
@@ -55,8 +55,8 @@ app.get('/api/mealplans', (req, res) => {
 	request.query({
 		"timeFrame": "day",
 		"targetCalories": calories,
-		"diet": "", //vegetarian"
-		"exclude": "shellfish%2C olives"
+		"diet": "",       //"vegetarian", si può implementare come parametro della query dell'utente che si connette
+		"exclude": ""     //"shellfish%2C olives", si può implementare come parametro della query dell'utente che si connette
 	});
 
 	request.headers({
@@ -71,7 +71,7 @@ app.get('/api/mealplans', (req, res) => {
 		var meals = result.body.meals;
 		//console.log(meals); ok, meals is a json var containing the array of all possible meals
 
-		// così funziona: res.send("The meal that you are searching for is: "+ result.body.meals[0].title + " \nHere are the nutrional values: \n" + "Calories = " + result.body.nutrients.calories + "\nProteins =  " + result.body.nutrients.protein +  "\nFat =  " + result.body.nutrients.fat + "\nCarbohydrates=  " + result.body.nutrients.carbohydrates       );
+		
 		res.send("\n\n\nHere are your three meals: \n"+ result.body.meals[0].title + "\n" + result.body.meals[1].title + "\n" + result.body.meals[2].title + "\nHere are the nutrional values: \n" + "Calories = " + result.body.nutrients.calories + "\nProteins =  " + result.body.nutrients.protein +  "\nFat =  " + result.body.nutrients.fat + "\nCarbohydrates=  " + result.body.nutrients.carbohydrates       ); 
 		//console.log(result.body);
 	});
