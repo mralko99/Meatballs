@@ -59,7 +59,7 @@ app.get('/api/mealplans', (req, res) => {
 
 	request.end(function (result) {
 		if (result.error) throw new Error(result.error);
-		var meals = result.body.meals;
+		var meals = result.body.meals;  //qua occhio alle promises, res.send dovrebbe utilizzare la variabile meals
 		//console.log(meals); ok, meals is a json var containing the array of all possible meals
 		res.send("\n\n\nHere are your three meals: \n"+ result.body.meals[0].title + "\n" + result.body.meals[1].title + "\n" + result.body.meals[2].title + "\nHere are the nutrional values: \n" + "Calories = " + result.body.nutrients.calories + "\nProteins =  " + result.body.nutrients.protein +  "\nFat =  " + result.body.nutrients.fat + "\nCarbohydrates=  " + result.body.nutrients.carbohydrates       ); 
 		//console.log(result.body);
