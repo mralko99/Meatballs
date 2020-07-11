@@ -38,7 +38,7 @@ app.get('/api/composition', (req, res) => {
 
 
 
-//Restituisce 3 pasti (per una giornata), date le calorie desiderate 
+//Restituisce 3 pasti (per una giornata), date le calorie desiderate
 app.get('/api/mealplans', (req, res) => {
 	var unirest = require("unirest");
 	var request = unirest("GET", "https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/recipes/mealplans/generate");
@@ -61,7 +61,7 @@ app.get('/api/mealplans', (req, res) => {
 		if (result.error) throw new Error(result.error);
 		var meals = result.body.meals;  //qua occhio alle promises, res.send dovrebbe utilizzare la variabile meals
 		//console.log(meals); ok, meals is a json var containing the array of all possible meals
-		res.send("\n\n\nHere are your three meals: \n"+ result.body.meals[0].title + "\n" + result.body.meals[1].title + "\n" + result.body.meals[2].title + "\nHere are the nutrional values: \n" + "Calories = " + result.body.nutrients.calories + "\nProteins =  " + result.body.nutrients.protein +  "\nFat =  " + result.body.nutrients.fat + "\nCarbohydrates=  " + result.body.nutrients.carbohydrates       ); 
+		res.send("\n\n\nHere is your meal plan: \n" + "Breakfast:  " + result.body.meals[0].title + "\n" + "Lunch:  " + result.body.meals[1].title + "\n" + "Dinner:  " + result.body.meals[2].title + "\nHere are the nutrional values: \n" + "Calories = " + result.body.nutrients.calories + "\nProteins =  " + result.body.nutrients.protein +  "\nFat =  " + result.body.nutrients.fat + "\nCarbohydrates=  " + result.body.nutrients.carbohydrates       );
 		//console.log(result.body);
 	});
 });
