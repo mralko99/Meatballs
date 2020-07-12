@@ -10,6 +10,7 @@
     "start": "node $npm_package_main",
     "calendar": "node ./routers/calendar_tests.js",
     "twitter": "node ./routers/twitter_test.js",
+    "mongoDB": "node ./routers/mongoDB.js",
     "node": "node",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -30,6 +31,9 @@
     "express-session": "^1.17.1",
     "oauth": "^0.9.15",
     "opener": "^1.5.1",
-    "twitter": "^1.7.1"
+    "package": "^1.0.1",
+    "run": "^1.4.0",
+    "twitter": "^1.7.1",
+    "unirest": "^0.6.0"
   }
 }

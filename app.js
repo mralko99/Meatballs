@@ -1,14 +1,14 @@
 const express = require('express'); //returns a function
 const app = express(); //returns an object of type Express
 
+var db = require('./routers/mongoDB');
+
 app.use(express.json()); //(per il req.body.name)
 
 // PORT (ENVIROMENT VARIABLE)  //a variable that is part of the enviroment in which teh process runs, its value is set outside this application
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`Listening on port ${port}...`));
 //scrivendo su terminale "$env:PORT = 5000" la macchina si metterà ad ascoltare sulla porta 5000
-
-
 
 app.get('/api/composition', (req, res) => {
 
@@ -62,6 +62,7 @@ app.get('/api/mealplans', (req, res) => {
 		var meals = result.body.meals;  //qua occhio alle promises, res.send dovrebbe utilizzare la variabile meals
 		//console.log(meals); ok, meals is a json var containing the array of all possible meals
 		res.send("\n\n\nHere is your meal plan: \n" + "Breakfast:  " + result.body.meals[0].title + "\n" + "Lunch:  " + result.body.meals[1].title + "\n" + "Dinner:  " + result.body.meals[2].title + "\nHere are the nutrional values: \n" + "Calories = " + result.body.nutrients.calories + "\nProteins =  " + result.body.nutrients.protein +  "\nFat =  " + result.body.nutrients.fat + "\nCarbohydrates=  " + result.body.nutrients.carbohydrates       );
-		//console.log(result.body);
+    db.insertDB(result, meals);
+    //console.log(result.body);
 	});
 });
