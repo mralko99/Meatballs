@@ -1,1 +1,16 @@
-qualcosa a *****
+
+		for (var k = 0; k < 3; k++){
+			var n = k + 1;
+			missingIngredientsNumber = res.body[k].missedIngredientCount;
+			console.log("Option " + n +") is: " + res.body[k].title + "\nId is: " + res.body[k].id +  "\nHere are the " + missingIngredientsNumber + " missing ingredients: ");
+			for (var i = 0; i < missingIngredientsNumber; i++){
+				console.log(res.body[k].missedIngredients[i].name );
+			}
+			console.log("\n");
+
+}
+console.log("Choose one option, type 1, 2 or 3");
+
+		//console.log(res.body);
+	});
+}
