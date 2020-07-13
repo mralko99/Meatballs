@@ -18,17 +18,63 @@ bot.command('start', (ctx) => ctx.reply)
 
 app.ws(start_endpoint, (ws,req)=> {
 
+  status = 0
+
   ws.send('insert username')
 
-  ws.on("message",username =>{
-    password = get_user(username).password
-    password = ""
+  ws.on("message",msg =>{
+    switch (status) {
+      //start point
+      case 0:
+        password = ""
+        password = get_user(msg).password
+        user = msg
+        password = ""
+        if(password == ""){
+          msg = ""
+          ws.send("l'account non esiste, inserisci una password per crearne uno")
+          status = 1
+        }else
+          status = 2
+        break;
+
+      // user non registrato - creazione entry DB
+      case 1:
+          //inserire funzione per salvare utente
+          console.log(msg)
+          if(msg != ""){
+            password = msg
+
+            //inserire funzione per salvare utente
+            status = 3
+          }
+        break;
+
+      // user registrato - controllo password
+      case 2:
+
+
+
+        break;
+
+
+      case 3:
+        ws.send("Benvenuto "+ user+" "+password)
+
+        break;
+
+
+
+
+      default:
+
+    }
   })//.then()
 
-  msg=""
 
 
 
+/*
        ws.on("message",msg =>{
          if(password == ""){
            console.log(msg)
@@ -49,7 +95,7 @@ app.ws(start_endpoint, (ws,req)=> {
          }
       })
 
-
+ */
 
   /*
   .then(ws.on('message', msg => {
