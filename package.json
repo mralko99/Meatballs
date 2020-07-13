@@ -31,6 +31,7 @@
     "express": "^4.17.1",
     "express-session": "^1.17.1",
     "express-ws": "^4.0.0",
+    "mongoose": "^5.9.23",
     "oauth": "^0.9.15",
     "opener": "^1.5.1",
     "package": "^1.0.1",

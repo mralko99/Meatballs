@@ -85,6 +85,7 @@ function create_calendar(name){
     headers:headers}, function(err,response,body){
     console.log(body)
   }, function (error, res, body){
+    if(errprthrow err
     console.log(error)
     console.log(res)
   })

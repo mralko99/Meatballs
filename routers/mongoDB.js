@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const dotenv = require("dotenv").config();
 
+password = ""
+
 //connecting to the database
 const URI = process.env.MONGODB_URI;
 mongoose.connect(URI, { useNewUrlParser: true });
@@ -34,8 +36,10 @@ function createUser(username, password){
 function findUser(username) {
   User.findOne({ username: username }, { username: 1, password: 1 }, function(err, res) {
     if (err) throw err;
-    else if (res == null) return "";
-    else return password;
+    else if (res === null) {
+      return
+    }
+    else password = User.password;
   })
 }
 
@@ -59,3 +63,8 @@ function retrieveIdMeal(req, meals){
 module.exports.insertMeals = insertMeals;
 module.exports.retrieveIdMeal = retrieveIdMeal;
 */
+module.exports = {
+  createUser,
+  findUser,
+  password
+}
