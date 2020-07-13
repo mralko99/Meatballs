@@ -84,11 +84,10 @@ function create_calendar(name){
     "json":true,
     headers:headers}, function(err,response,body){
     console.log(body)
+  }, function (error, res, body){
+    console.log(error)
+    console.log(res)
   })
-
-
-
-
 
 
 
