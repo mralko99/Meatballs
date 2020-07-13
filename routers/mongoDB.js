@@ -1,70 +1,34 @@
-const mongoose = require('mongoose');
-const dotenv = require("dotenv").config();
-
-password = ""
+const mongoose = require('mongoose')
+const dotenv = require("dotenv").config()
 
 //connecting to the database
-const URI = process.env.MONGODB_URI;
-mongoose.connect(URI, { useNewUrlParser: true });
-const db = mongoose.connection;
+mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true , useUnifiedTopology : true})
+const db = mongoose.connection
 
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
-var Schema = mongoose.Schema;
-
-//Schema for a user
-var userSchema = new Schema({
-  username: String,
-  password: String
-})
-
-var User = mongoose.model('User', userSchema);
 
 //Method to save a user instance in the users collection.
 function createUser(username, password){
-  var userInstance = new User({
-    username: username,
-    password: password
-  })
-
-  userInstace.save(function(err) {
-    if (err) throw err;
+  var User = { username: username, password: password }
+  db.collection("user").insertOne(User, function(err, res) {
+    if (err) throw err
   })
 }
 
-//Method to find a user in the collection give the username.
-//Returns "" if the username is not in the collection, otherwise it returns the password associated.
-function findUser(username) {
-  User.findOne({ username: username }, { username: 1, password: 1 }, function(err, res) {
-    if (err) throw err;
-    else if (res === null) {
-      return
-    }
-    else password = User.password;
+function findUser (username) {
+  return new Promise(function(resolve, reject) {
+    db.collection("user").findOne({ username: username }, { projection: { username: 1, password: 1 } }, function (err, res) {
+        if (err)
+          reject(err)
+        else if (res == null)
+          resolve("")
+        else
+          resolve(res.password)
+    })
   })
 }
 
-/*
-function insertMeals(result){
-  const db = client.db(process.env.DB_NAME);
-  db.collection('meals').insertOne(result.body, function(err, res) {
-    if(err) throw err;
-    console.log("Successfully inserted the meals into the database!");
-  });
-};
-
-function retrieveIdMeal(req, meals){
-  const db = client.db(process.env.DB_NAME);
-  var object = db.collection('meals').find().limit(1).sort({$natural:-1});
-  if(req == "colazione"){
-    object.find( {meals:0} );
-  }
-}
-
-module.exports.insertMeals = insertMeals;
-module.exports.retrieveIdMeal = retrieveIdMeal;
-*/
 module.exports = {
   createUser,
-  findUser,
-  password
+  findUser
 }
