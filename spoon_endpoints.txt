@@ -14,3 +14,19 @@ console.log("Choose one option, type 1, 2 or 3");
 		//console.log(res.body);
 	});
 }
+
+
+dati Google
+
+calendarId
+googleCalendarAccessToken
+googleCalendarAccessCode
+googleCalendarAccessTokenEmissionTimestamp
+
+
+dati Twitter
+
+
+TwitterAccessToken
+TwitterAccessTokenSecret
+TwitterAccessTokenEmissionTimestamp
