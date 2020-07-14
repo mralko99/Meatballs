@@ -1,23 +1,30 @@
-const expapi_meals = require('express')
+const express = require('express')
 const enablews = require( 'express-ws')
 const mongoDB = require("./mongoDB.js")
-const spoonacular = require('/spoonacular.js');
+const spoonacular = require('./spoonacular.js');
 const app = express ()
+
 enablews(app)
 
 const start_endpoint = "/chatbot"
 
-
+status = 0
+main_status = 0
+sub_flow_status = 0
+ingredients_3_meals = ""
+meals_json = ""
 
 app.ws(start_endpoint, (ws,req)=> {
 
-  status = 0
-  main_status = 0
-  sub_flow_status = 0
-  ingredients_3_meals = ""
-  meals_json = ""
+
+
   ws.send('insert username')
   ws.on("message",msg =>{
+    console.log("\n")
+    console.log("msg= "+msg)
+    console.log("status= "+status)
+    console.log("main_status= "+main_status)
+    console.log("sub_flow_status= "+sub_flow_status)
     switch (status) {
 
       //start point
@@ -87,30 +94,27 @@ app.ws(start_endpoint, (ws,req)=> {
 
         if(main_status == 0){
               main_status = chat_flow_router(msg,ws)
-        }
+        }else{
 
+            switch (main_status) {
+              case 1:  //enters flow for meals choose
+                 _meals_flow(msg,sub_flow_status,ws)
 
+                if(sub_flow_status == 2){
+                  sub_flow_status = 0
+                  main_status = 0
+                  ws.send("Benvenuto "+user+" make a request")
+                }
+                break;
 
+              case 0:
+                //nothing to add
+                break;
 
-        switch (main_status) {
-          case 1  //enters flow for meals choose
-            sub_flow_status = 3_meals_flow(msg,sub_flow_status,ws)
-
-            if(sub_flow_status == 2){
-              sub_flow_status = 0
-              main_status = 0
-              ws.send("Benvenuto "+user+" make a request")
+              default:
+                ws.close()
             }
-            break;
-
-          case 0:
-            //nothing to add
-            break;
-
-          default:
-            ws.close()
         }
-
       default:
     }
   })
@@ -134,7 +138,7 @@ function chat_flow_router (msg, ws){
       return 2
       break;
 
-    case "stop chat"
+    case "stop chat":
       return -1
 
     default:
@@ -145,7 +149,7 @@ function chat_flow_router (msg, ws){
 }
 
 
-function 3_meals_flow(msg,status,ws){
+function _meals_flow(msg,status,ws){
   switch (status) {
 
     case 0:
@@ -153,18 +157,22 @@ function 3_meals_flow(msg,status,ws){
       if(msg == "reset"){
         ingredients_3_meals = ""
         ws.send("Type your ingredients, end with 'finish' or type 'reset'") //start mex for 3_meals_request
-        return 0
+        sub_flow_status = 0
+        return
       }
 
       if(msg == "finish"){
+          console.log("EEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
           //inserire function per ottenere JSON complicato
           promise_meals_by_ingredients = spoonacular.mealsByIngredient(ingredients_3_meals)
           promise_meals_by_ingredients.then(function(result){
           meals_json = result
-          answer = get_meals_string (meals_json)
+          //console.log(meals_json)
+          answer = get_meals_string(meals_json)
           ws.send("choose youre recipe, type 1 or 2 or 3")
           ws.send(answer)
-          return 1
+          sub_flow_status = 1
+          return
 
           },function(reject){
             ws.send("Error foud: "+reject)
@@ -173,8 +181,13 @@ function 3_meals_flow(msg,status,ws){
 
 
       }else{
-          ingredients_3_meals = ingredients_3_meals + "2%C"
-          return 0;
+          if(ingredients_3_meals == ""){
+            ingredients_3_meals = msg
+          }else{
+            ingredients_3_meals = ingredients_3_meals+ "2%C" +msg
+          }
+          sub_flow_status = 0;
+          return
       }
 
       break;
@@ -184,16 +197,23 @@ function 3_meals_flow(msg,status,ws){
         ws.send("This is not a valid number, type again or 'exit' or 'menu'")
         return 1
       }
-      recipe_ID = meals_json[parseInt(msg) - 1].id//variablile Id che non ricordo
+      console.log("case 1 enter")
+      recipe_ID = meals_json["body"][parseInt(msg) - 1]["id"]//variablile Id che non ricordo
       //insert funzione per prendere la ricetta+
-      ws.send("This is your recipe, have a good meals!")
-      ws.send(recipe)
-      ws.send("Se compare il messaggio, ha funzionato, quindi hai un ricetta speciale")
-      ws.send("Cazzi ai cereali")
-      //reset variables
-      ingredients_3_meals = ""
-      meals_json = ""
-      return 2
+      recipeById_promise = spoonacular.recipeById(recipe_ID)
+      recipeById_promise.then(function(result){
+          ws.send("This is your recipe, have a good meals!")
+          ws.send(result)
+          ws.send("Se compare il messaggio, ha funzionato, quindi hai un ricetta speciale")
+          ws.send("Cazzi ai cereali")
+          //reset variables
+          ingredients_3_meals = ""
+          meals_json = ""
+          sub_flow_status = 2
+          return
+      },function(reject){
+        ws.close()
+      })
 
     break;
 
@@ -204,17 +224,18 @@ function 3_meals_flow(msg,status,ws){
 
 //get string version of meals
 function get_meals_string (api_meals){
+  console.log(api_meals.body)
   result = ""
   for (var k = 0; k < 3; k++){
     var n = k + 1;
-    missingIngredientsNumber = api_meal.body[k].missedIngredientCount;
-    result = result + "Option " + n +") is: " + api_meal.body[k].title + "\nId is: " + api_meal.body[k].id +  "\nHere are the " + missingIngredientsNumber + " missing ingredients: ";
+    missingIngredientsNumber = api_meals.body[k].missedIngredientCount;
+    result = result + "Option " + n +") is: " + api_meals.body[k].title + "\nId is: " + api_meals.body[k].id +  "\nHere are the " + missingIngredientsNumber + " missing ingredients: ";
     for (var i = 0; i < missingIngredientsNumber; i++){
-      result = result + "/n" + api_meal.body[k].missedIngredients[i].name );
+      result = result + "\n" + api_meals.body[k].missedIngredients[i].name ;
     }
-    result = result + "/n"
-
-    return result
+    result = result + "\n\n"
+  }
+  return result;
 }
 
 app.listen(5000)

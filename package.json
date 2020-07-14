@@ -12,7 +12,7 @@
     "twitter": "node ./routers/twitter_test.js",
     "mongoDB": "node ./routers/mongoDB.js",
     "chatbot": "node ./routers/chatbot_2.js",
-    "spoonacular": "node ./routers/spoonacular.js"
+    "spoonacular": "node ./routers/spoonacular.js",
     "node": "node",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
