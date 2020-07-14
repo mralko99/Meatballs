@@ -4,6 +4,8 @@ var opener = require("opener")
 
 const dotenv = require("dotenv")
 
+const mongoDB = require('./mongoDB');
+
 dotenv.config()
 
 
@@ -52,19 +54,20 @@ function getAccessToken(code, redirect_uri){
     "grant_type":"authorization_code"
   }
   console.log(body)
-  request.post({
-    url:url,body:body,"json":true
-  },function(err,response,body){
-    if(err){
-      console.error("token request failed");
-      console.error("error: "+err.name+" message: "+err.message)
-    }
+  return new Promise(function(resolve,reject){
+      request.post({
+        url:url,body:body,"json":true
+      },function(err,response,body){
+        if(error){
+          reject(error)
+        }
 
-    body_json = body
-    access_token = body_json.access_token
-    console.log("request_token_message_response "+JSON.stringify(response))
-    console.log("request_token_message_response "+JSON.stringify(body))
-  })
+        body_json = body
+        resolve(body_json.access_token)
+        console.log("request_token_message_response "+JSON.stringify(response))
+        console.log("request_token_message_response "+JSON.stringify(body))
+      })
+  )}
 
 }
 
@@ -89,7 +92,7 @@ function create_calendar(name){
       }, function (error, res, body){
 
         if(error) reject(error)
-        
+
         resolve(res)
       })
 
@@ -141,8 +144,41 @@ function createEvent(user, accessToken,title, description, startDateTimeString){
 
 }
 
+function getAccessTokenUser(user){
+      getCalendarInfo_promise = mongoDB.getCalendarInfo(user)
+      getCalendarInfo_promise.then(function(resolve){
+      accessToken = resolve.accessToken
+      accessCode = resolve.accessCode
+      accessTokenEmissionTimestamp = resolve.calendarTimeStamp
+
+      accessTokenAge = Date.now() - accessTokenEmissionTimestamp
+
+      if(accessTokenAge < process.env.GOOGLE_CALENDAR_TIMESTAMP_DURATION - 10000){
+        return accessToken
+      }else{
+        getAccessToken_promise = getAccessToken(accessCode, redirect_uri)
+        getAccessToken_promise.then(function(result){
+        return result
+        },function (reject){
+          console.error(reject);
+        })
+      }
+    })
+}
+
+function getCalendarId(user) {
+
+    getCalendarInfo_promise = mongoDB.getCalendarInfo(user)
+    getCalendarInfo_promise.then(function(resolve){
+    caledarId = resolve.getCalendarId
+    return calendarId
+  }, function(error){
+    console.error(error);
+  })
 
 
+
+}
 
 }
 module.exports = {
