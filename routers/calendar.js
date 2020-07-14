@@ -71,28 +71,74 @@ function getAccessToken(code, redirect_uri){
 
 
 function create_calendar(name){
-  url = create_calendar_endpoint+"?key="+api_key
+  return new Promise (function(resolve,reject) {
 
-  body = {"summary":name}
-  console.log(name)
-  headers = {"Authorization": "Bearer "+access_token,
-             "Accept": "application/json"
-  }
-  request.post({
-    url:url,
-    body:body,
-    "json":true,
-    headers:headers}, function(err,response,body){
-    console.log(body)
-  }, function (error, res, body){
-    if(errprthrow err
-    console.log(error)
-    console.log(res)
+      url = create_calendar_endpoint+"?key="+api_key
+
+      body = {"summary":name}
+      console.log(name)
+      headers = {"Authorization": "Bearer "+access_token,
+                 "Accept": "application/json"
+      }
+      request.post({
+        url:url,
+        body:body,
+        "json":true,
+        headers:headers}, function(err,response,body){
+        console.log(body)
+      }, function (error, res, body){
+
+        if(error) reject(error)
+        
+        resolve(res)
+      })
+
+  })
+}
+
+function createEvent(user, accessToken,title, description, startDateTimeString){  //datetime String, format ---> October 13, 2014 11:13:00
+  return new Promise(function(resolve,reject){
+      accessToken = getAccessTokenUser(user)
+      calendarId = getCalendarId(user)
+
+      url = "https://www.googleapis.com/calendar/v3/calendars/"+calendarId+"/events?key="+api_key
+      headers = {"Authorization": "Bearer "+access_token,
+                 "Accept": "application/json"
+      }
+
+
+      startDateTime = new Date(startDateTimeString)
+      if(startDateTime == "Invalid Date"){
+        reject("Invalid Date")
+      }
+      endDateTime = new Date(startDateTimeString)
+
+      endDateTime.setMinutes(endDateTime.getMinutes() + 60)
+
+      body = {
+        "summary":title,
+        "description":description,
+        "start":{
+          "dateTime":startDateTime
+        },
+        "end":{
+          "dateTime":endDateTime
+        }
+      }
+
+      request.post({
+        url:url, headers:headers, body:body, "json":true
+      }, function(error, res,body){
+        if(error){
+          reject(error)
+        }
+        resolve(true)
+
+      })
+
+
   })
 
-
-function createEvent(calendarID, accessToken,title, description, startDateTime){
-  
 }
 
 
@@ -103,4 +149,5 @@ module.exports = {
   getAuthCode,
   getAccessToken,
   create_calendar,
+  createEvent
 }
