@@ -24,8 +24,8 @@ app.get('/api/composition', (req, res) => {
   });
 
   request.headers({
-    "x-rapidapi-host": "spoonacular-recipe-food-nutrition-v1.p.rapidapi.com",
-    "x-rapidapi-key": "8b7bf76a17mshbf959543e115761p120952jsn499463a234ee",
+		"x-rapidapi-host": process.env.X_RAPIDAPI_HOST,
+		"x-rapidapi-key": process.env.X_RAPIDAPI_KEY,
     "useQueryString": true
   });
 
@@ -52,8 +52,8 @@ app.get('/api/mealplans', (req, res) => {
 	});
 
 	request.headers({
-		"x-rapidapi-host": "spoonacular-recipe-food-nutrition-v1.p.rapidapi.com",
-		"x-rapidapi-key": "8b7bf76a17mshbf959543e115761p120952jsn499463a234ee",
+		"x-rapidapi-host": process.env.X_RAPIDAPI_HOST,
+		"x-rapidapi-key": process.env.X_RAPIDAPI_KEY,
 		"useQueryString": true
 	});
 
