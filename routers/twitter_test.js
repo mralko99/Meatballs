@@ -14,8 +14,7 @@ consumer_secret = process.env.CONSUMER_SECRET
 
 access_code = ""
 
-app.get("/test_auth2", function(req,res){
-  //twitter.getAuthCode()
+async function bearerToken (auth) {
   const requestConfig = {
     url: bearerTokenURL,
     auth: {
@@ -27,13 +26,27 @@ app.get("/test_auth2", function(req,res){
     },
   };
 
-  body="grant_type=client_credentials"
+  const response = await post(requestConfig);
+  const body = JSON.parse(response.body);
 
-  request.get(requestConfig, function(error, res){
-    console.log("Response: "+JSON.stringify(res))
-    console.log("Error: "+error)
+  if (response.statusCode !== 200) {
+    const error = body.errors.pop();
+    throw Error(`Error ${error.code}: ${error.message}`);
+    return null;
   }
-  )
+
+  return JSON.parse(response.body).access_token;
+}
+
+
+app.get("/test_auth2", function(req,res){
+  (async () => {
+    let token;
+  token = await bearerToken({consumer_key, consumer_secret});
+  })
+
+  console.log(token)
 })
 
 app.listen("1234")
+
