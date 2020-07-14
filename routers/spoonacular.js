@@ -8,7 +8,9 @@ app.use(express.json()); //(per il req.body.name)
 var ritorno = "";
 
 
-function myfunction1(){//search recipes by ingredients
+function mealsByIngredient(clientIngredients){//search recipes by ingredients,
+																				//clientIngredients è una stringa nel formato ingrediente%2cingrediente%2cingrediente...
+																				//e.g. clientIngredients  = "apples%2Cflour%2Csugar";
 
 
 	var missingIngredientsNumber = 0;
@@ -19,7 +21,7 @@ function myfunction1(){//search recipes by ingredients
 		"number": "3",
 		"ranking": "1",
 		"ignorePantry": "false",
-		"ingredients": "apples%2Cflour%2Csugar"
+		"ingredients": clientIngredients
 	});
 
 	req.headers({
@@ -34,6 +36,21 @@ function myfunction1(){//search recipes by ingredients
 
 		ritorno = res.body;
 		console.log(ritorno);
+
+		/*
+		for (var k = 0; k < 3; k++){
+			var n = k + 1;
+			missingIngredientsNumber = res.body[k].missedIngredientCount;
+			console.log("Option " + n +") is: " + res.body[k].title + "\nId is: " + res.body[k].id +  "\nHere are the " + missingIngredientsNumber + " missing ingredients: ");
+			for (var i = 0; i < missingIngredientsNumber; i++){
+				console.log(res.body[k].missedIngredients[i].name );
+			}
+			console.log("\n");
+
+		}
+		console.log("Choose one option, type 1, 2 or 3");
+		*/
+
 	});
 
 	//console.log(ritorno);
@@ -41,23 +58,14 @@ function myfunction1(){//search recipes by ingredients
 
 }
 
+var ingr = "apples%2Cflour%2Csugar";
+var r1 = mealsByIngredient(ingr); //r1 è un json contenente un array di json che rappresentano le 3 opzioni (i 3 pasti)
+
+
+
+
+
 module.exports = {
 	ritorno,
-	myfunction1
+	mealsByIngredient
 }
-
-//myfunction1();
-
-/*
-for (var k = 0; k < 3; k++){
-	var n = k + 1;
-	missingIngredientsNumber = res.body[k].missedIngredientCount;
-	console.log("Option " + n +") is: " + res.body[k].title + "\nId is: " + res.body[k].id +  "\nHere are the " + missingIngredientsNumber + " missing ingredients: ");
-	for (var i = 0; i < missingIngredientsNumber; i++){
-		console.log(res.body[k].missedIngredients[i].name );
-	}
-	console.log("\n");
-
-}
-console.log("Choose one option, type 1, 2 or 3");
-*/
