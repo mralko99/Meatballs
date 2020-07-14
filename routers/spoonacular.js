@@ -4,6 +4,7 @@ var unirest = require("unirest");
 
 app.use(express.json()); //(per il req.body.name)
 
+const dotenv = require("dotenv").config() //.ENV varibales config
 
 var ritorno = "";
 
@@ -12,30 +13,30 @@ function mealsByIngredient(clientIngredients){//search recipes by ingredients,
 																				//clientIngredients è una stringa nel formato ingrediente%2cingrediente%2cingrediente...
 																				//e.g. clientIngredients  = "apples%2Cflour%2Csugar";
 
-
-	var missingIngredientsNumber = 0;
-	var req = unirest("GET", "https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/recipes/findByIngredients");
-
-
-	req.query({
-		"number": "3",
-		"ranking": "1",
-		"ignorePantry": "false",
-		"ingredients": clientIngredients
-	});
-
-	req.headers({
-		"x-rapidapi-host": "spoonacular-recipe-food-nutrition-v1.p.rapidapi.com",
-		"x-rapidapi-key": "8b7bf76a17mshbf959543e115761p120952jsn499463a234ee",
-		"useQueryString": true
-	});
+	return new Promise(function(resolve, reject){
+			var missingIngredientsNumber = 0;
+			var req = unirest("GET", "https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/recipes/findByIngredients");
 
 
-	req.end(function (res) {
-		if (res.error) throw new Error(res.error);
+			req.query({
+				"number": "3",
+				"ranking": "1",
+				"ignorePantry": "false",
+				"ingredients": clientIngredients
+			});
 
-		ritorno = res.body;
-		console.log(ritorno);
+			req.headers({
+				"x-rapidapi-host": process.env.X_RAPIDAPI_HOST,
+				"x-rapidapi-key": process.env.X_RAPIDAPI_KEY,
+				"useQueryString": true
+			});
+
+
+			req.end(function (res) {
+				if (res.error) reject(res.error;);
+
+				resoleve(res.body);
+				//console.log(ritorno);
 
 		/*
 		for (var k = 0; k < 3; k++){
@@ -51,7 +52,8 @@ function mealsByIngredient(clientIngredients){//search recipes by ingredients,
 		console.log("Choose one option, type 1, 2 or 3");
 		*/
 
-	});
+			});
+	})
 
 	//console.log(ritorno);
 
