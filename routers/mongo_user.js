@@ -172,5 +172,5 @@ module.exports = {
   updateTwitterToken,
   getTwitterInfo,
   associateMeal,
-  lookForMeal
+  //lookForMeal
 }
