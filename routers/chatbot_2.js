@@ -163,7 +163,6 @@ function _meals_flow(msg,status,ws){
 
       if(msg == "finish"){
           console.log("EEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
-          //inserire function per ottenere JSON complicato
           promise_meals_by_ingredients = spoonacular.mealsByIngredient(ingredients_3_meals)
           promise_meals_by_ingredients.then(function(result){
           meals_json = result
@@ -198,8 +197,7 @@ function _meals_flow(msg,status,ws){
         return 1
       }
       console.log("case 1 enter")
-      recipe_ID = meals_json["body"][parseInt(msg) - 1]["id"]//variablile Id che non ricordo
-      //insert funzione per prendere la ricetta+
+      recipe_ID = meals_json["body"][parseInt(msg) - 1]["id"]
       recipeById_promise = spoonacular.recipeById(recipe_ID)
       recipeById_promise.then(function(result){
           ws.send("This is your recipe, have a good meals!")
@@ -221,6 +219,8 @@ function _meals_flow(msg,status,ws){
 
   }
 }
+
+
 
 //get string version of meals
 function get_meals_string (api_meals){

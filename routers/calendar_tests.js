@@ -4,6 +4,8 @@ app = express()
 
 calendar = require("./calendar")
 
+const events = require('events');
+
 auth_url = "https://accounts.google.com/o/oauth2/v2/auth"
 
 calendar_scope = "https://www.googleapis.com/auth/calendar"
@@ -30,7 +32,11 @@ app.get("/test_calendar/get_code_opener", function(req,res){
 //#################put in app.js!!!!
 app.get("/test_auth", function(req,res){
   access_code = req.query.code
+  console.log(req.query)
+  //console.log(req)
   res.send("access code got!!!"+access_code)
+
+  //calendar.authEmitter.emit("accessCodeOK",access_code)
 })
 //###############################
 
@@ -49,5 +55,10 @@ app.get("/test_calendar/create_calendar", function(req,res){
 
   calendar.create_calendar(name)
 })
+
+function setEmitter(emitter){
+  var authEmitter = emitter
+}
+
 
 app.listen("1234")
