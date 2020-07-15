@@ -23,8 +23,8 @@ var mealSchema = new Schema({
 
 var Meal = mongoose.model('Meal', mealSchema);
 
-//If meal is not in the collection, it'll be inserted with the recipe.
-//If meal is in the collection, only the recipe will be updated.
+/* If meal is not in the collection, it'll be created with the recipe.
+   If meal is already in the collection, the recipe will be updated. */
 function createMeal(id, name, recipe) {
   var mealInstance = new Meal ({
     id: id,
@@ -54,24 +54,20 @@ function updateRecipe(id, recipe) {
   })
 }
 
-async function exist(id) {
-  await Meal.exists({ id: id })
+/* Check if the meal is in the collection */
+function exist(id) {
+  return new Promise(function(resolve, reject) {
+    var query = Meal.exists({ id: id }, function (err, res) {
+      if (err) reject(err)
+      else if (res) resolve(true)
+      else resolve (false)
+    })
+
+  })
 }
 
 //IMPLEMENTARE getMealById
 
-/*
-function mealExist(id) {
-  return new Promise(function(resolve, reject) {
-    var query = Meal.exist({ id: id }, function (err, res) {
-      if (err) reject(err)
-      else resolve (false);
-    })
-    if(query) resolve(true);
-    else resolve (false);
-  })
-}
-*/
 module.exports = {
   createMeal,
   updateRecipe,
