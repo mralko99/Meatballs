@@ -1,23 +1,18 @@
-const express = require('express')
-const enablews = require( 'express-ws')
+//const express = require('express')
+//const enablews = require( 'express-ws')
 const mongoDB = require("./mongoDB.js")
 const spoonacular = require('./spoonacular.js');
-const app = express ()
+//const app = express ()
 
-enablews(app)
-
-const start_endpoint = "/chatbot"
+//enablews(app)
 
 status = 0
 main_status = 0
 sub_flow_status = 0
 ingredients_3_meals = ""
 meals_json = ""
-
-app.ws(start_endpoint, (ws,req)=> {
-
-
-
+function main_chatbot(ws){
+  console.log("user connected")
   ws.send('insert username')
   ws.on("message",msg =>{
     console.log("\n")
@@ -47,7 +42,7 @@ app.ws(start_endpoint, (ws,req)=> {
               }
             },
             function(error) {
-              ws.send("error found: "+err+", send a message to disconnect")
+              ws.send("error found: "+error+", send a message to disconnect")
               ws.close()
             }
           )
@@ -123,7 +118,7 @@ app.ws(start_endpoint, (ws,req)=> {
     console.log("connection closed")
   })
 
-})
+}
 
 
 //Choose chat flow by starting message
@@ -238,4 +233,9 @@ function get_meals_string (api_meals){
   return result;
 }
 
-app.listen(5000)
+
+module.exports = {
+  main_chatbot
+}
+
+//app.listen(5000)
