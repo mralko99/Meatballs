@@ -1,6 +1,6 @@
 //const express = require('express')
 //const enablews = require( 'express-ws')
-const mongoDB = require("./mongoDB.js")
+const mongoDB = require("./mongo_user.js")
 const spoonacular = require('./spoonacular.js');
 //const app = express ()
 
@@ -11,6 +11,7 @@ main_status = 0
 sub_flow_status = 0
 ingredients_3_meals = ""
 meals_json = ""
+
 function main_chatbot(ws){
   console.log("user connected")
   ws.send('insert username')
