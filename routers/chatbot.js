@@ -6,112 +6,135 @@ const spoonacular = require('./spoonacular.js');
 
 //enablews(app)
 
-status = 0
+auth_status = 0
 main_status = 0
 sub_flow_status = 0
 ingredients_3_meals = ""
 meals_json = ""
 
 function main_chatbot(ws){
-  console.log("user connected")
-  ws.send('insert username')
-  ws.on("message",msg =>{
-    console.log("\n")
-    console.log("msg= "+msg)
-    console.log("status= "+status)
-    console.log("main_status= "+main_status)
-    console.log("sub_flow_status= "+sub_flow_status)
-    switch (status) {
+  ws.send('Inserisci username')
 
-      //start point
-      case 0:
-          var myPromise =  mongoDB.findUser(msg)
-          myPromise.then(
-            function(ritorno) {
-              user = msg
-              password = ritorno
-              if(password == "")
-              {
-                ws.send("L'account non esiste")
-                ws.send("Inserisci una password per creare un account")
-                status = 1
+  ws.on("message",msg =>{
+
+    //Authentication
+    if (auth_status!=3){
+      switch (auth_status) {
+
+        //Start point
+        case 0:
+            var User_Promise =  mongoDB.findUser(msg)
+            User_Promise.then(
+              function(res) {
+                user = msg
+                password = res
+                if(password == "")
+                {
+                  ws.send("L'account non esiste")
+                  ws.send("Inserisci una password per creare un account")
+                  auth_status = 1
+                }
+                else
+                {
+                  ws.send("Inserisci la password")
+                  auth_status = 2
+                }
+              },
+              function(err) {
+                ws.send("ERROR:"+err)
+                ws.close()
               }
-              else
-              {
-                ws.send("Inserisci la password")
-                status = 2
-              }
-            },
-            function(error) {
-              ws.send("error found: "+error+", send a message to disconnect")
+            )
+          break;
+
+        // user non registrato - creazione entry DB
+        case 1:
+            password = msg
+            try{
+              mongoDB.createUser(user,password)
+              ws.send("User creato")
+              ws.send("Benvenuto "+user)
+              ws.send("Scrivere help per avere la lista dei comandi")
+              auth_status = 3
+            }catch(err){
+              ws.send("ERROR: "+err)
               ws.close()
             }
-          )
-        break;
+          break;
 
-      // user non registrato - creazione entry DB
-      case 1:
-          password = msg
-          try{
-            mongoDB.createUser(user,password)
-            ws.send("User creato")
-            ws.send("Benvenuto "+user)
-            status = 3
-          }catch(error){
-            ws.send("error found: "+error+", send a message to disconnect")
-            ws.close()
-          }
-        break;
-
-      // user registrato - controllo password
-      case 2:
-          if(password != msg){
-            ws.send("Reinserire password")
-            status = 2
-          }
-          else{
-            ws.send("Password corretta")
-            ws.send("Benvenuto "+user+" make a request")
-            status = 3
-          }
-        break;
-
-      // start chat
-      case 3:
-
-        if(msg == "exit"){  //close if user type exit
-          ws.close
-        }
-
-        if(msg == "menu"){ //redirect to menù if user type menu
-          main_status = 0
-          ws.send("Benvenuto "+user+" make a request")
-        }
-
-        if(main_status == 0){
-              main_status = chat_flow_router(msg,ws)
-        }else{
-
-            switch (main_status) {
-              case 1:  //enters flow for meals choose
-                 _meals_flow(msg,sub_flow_status,ws)
-
-                if(sub_flow_status == 2){
-                  sub_flow_status = 0
-                  main_status = 0
-                  ws.send("Benvenuto "+user+" make a request")
-                }
-                break;
-
-              case 0:
-                //nothing to add
-                break;
-
-              default:
-                ws.close()
+        // user registrato - controllo password
+        case 2:
+            if(password != msg){
+              ws.send("Reinserire password")
+              auth_status = 2
             }
+            else{
+              ws.send("Password corretta")
+              ws.send("Benvenuto "+user)
+              ws.send("Scrivere help per avere la lista dei comandi")
+              auth_status = 3
+            }
+          break;
+
+        default:
+      }
+    }
+
+    //Start the real chat
+    else{
+      //Debug print
+      console.log("\n")
+      console.log("msg= "+msg)
+      console.log("main_status= "+main_status)
+      console.log("sub_flow_status= "+sub_flow_status)
+
+      //Give help to user
+      if(msg == "help"){
+        if (main_status==0){
+          ws.send("exit - esci dal programma")
+          ws.send("menu - torna al menu principale")
+          ws.send("recipe ingredients - fa partire il flow per scegliere il pasto")
         }
-      default:
+        if (main_status==1){
+          ws.send("exit - esci dal programma")
+          ws.send("menu - torna al menu principale")
+        }
+        if (main_status==2){
+          ws.send("exit - esci dal programma")
+          ws.send("menu - torna al menu principale")
+        }
+      }
+
+      //Close the chat
+      if(msg == "exit"){
+        ws.close()
+      }
+
+      //Redirect user to main menu
+      if(msg == "menu"){
+        main_status = 0
+        ws.send("Sei tornato al menu principale")
+      }
+
+      switch (main_status) {
+        //Main Page
+        case 0:
+          chat_flow_router(msg,ws)
+          break;
+
+        //Spoonacular Page
+        case 1:
+          meals_flow(msg,ws)
+          break;
+
+        //Template
+        case 2:
+          console.log("Insert flow here")
+          break;
+
+        default:
+          ws.close()
+      }
     }
   })
 
@@ -125,40 +148,41 @@ function main_chatbot(ws){
 //Choose chat flow by starting message
 function chat_flow_router (msg, ws){
   switch (msg) {
-    case "give me a meals by ingredients":
-      ws.send("Type your ingredients, end with 'finish' or type 'reset'") //start mex for 3_meals_request
-      return 1
+    case "recipe ingredients":
+      ws.send("Type your ingredients, end with 'finish'") //start mex for 3_meals_request
+      main_status = 1
+      return
       break;
 
     case "test":
-      return 2
+      main_status = 2
       break;
 
-    case "stop chat":
-      return -1
-
     default:
+      if (msg!="help"&&msg!="exit"&&msg!="menu")
       ws.send("I don't know what you mean")
-      return 0
+      main_status = 0
+      return
 
   }
 }
 
 
-function _meals_flow(msg,status,ws){
-  switch (status) {
+function meals_flow(msg,ws){
+  switch (sub_flow_status) {
 
     case 0:
+      ingredients_3_meals = ""
 
       if(msg == "reset"){
-        ingredients_3_meals = ""
-        ws.send("Type your ingredients, end with 'finish' or type 'reset'") //start mex for 3_meals_request
         sub_flow_status = 0
+        main_status = 0
+        ws.send("Sei tornato al menu principale")
         return
       }
 
-      if(msg == "finish"){
-          console.log("EEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
+      else if(msg == "finish"){
+          console.log("User ended the ingredients")
           promise_meals_by_ingredients = spoonacular.mealsByIngredient(ingredients_3_meals)
           promise_meals_by_ingredients.then(function(result){
           meals_json = result
@@ -173,16 +197,17 @@ function _meals_flow(msg,status,ws){
             ws.send("Error foud: "+reject)
             ws.close()
           })
+      }
 
-
-      }else{
+      else{
+        if (msg != "help" && msg != "exit"){
           if(ingredients_3_meals == ""){
             ingredients_3_meals = msg
           }else{
             ingredients_3_meals = ingredients_3_meals+ "2%C" +msg
           }
-          sub_flow_status = 0;
           return
+        }
       }
 
       break;
@@ -203,19 +228,33 @@ function _meals_flow(msg,status,ws){
           //reset variables
           ingredients_3_meals = ""
           meals_json = ""
-          sub_flow_status = 2
+
+          sub_flow_status = 0
+          main_status = 0
+          ws.send("Sei tornato al menu principale")
           return
       },function(reject){
         ws.close()
       })
 
-    break;
+      break;
 
     default:
 
   }
 }
 
+function meals_flow2(msg,ws){
+
+}
+
+function calendar_flow(msg,ws){
+
+}
+
+function twittter_flow(msg,ws){
+
+}
 
 
 //get string version of meals
