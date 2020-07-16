@@ -115,6 +115,69 @@ function recipeById(Id){
 
 
 
+
+
+
+
+function mealsByCalories(calories, diet, exclude){
+																				//calories è un intero (Rappresenta il numero di calorie che l'utente vuole consumare durante il giorno) e.g. 2500
+																				//diet vale "" oppure "vegetarian"
+																				//exclude è una stringa nel formato ingrediente%2Cingrediente%2Cingrediente...
+																				//e.g. eclude  = "apples%2Cflour%2Csugar", oppure exclude = "";
+
+
+	return new Promise (function (resolve, reject){
+
+
+			var missingIngredientsNumber = 0;
+			var req = unirest("GET", "https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/recipes/mealplans/generate");
+
+			req.query({
+				"timeFrame": "day",
+				"targetCalories": calories,
+				"diet": diet,       //"vegetarian", si può implementare come parametro della query dell'utente che si connette
+				"exclude": exclude     //"shellfish%2Colives", si può implementare come parametro della query dell'utente che si connette
+			});
+
+
+			req.headers({
+				"x-rapidapi-host": "spoonacular-recipe-food-nutrition-v1.p.rapidapi.com",
+				"x-rapidapi-key": "8b7bf76a17mshbf959543e115761p120952jsn499463a234ee",
+				"useQueryString": true
+			});
+
+
+			req.end(function (res) {
+				if (res.error) reject(res.error);
+				//console.log("risultato seee "+res.body);
+				resolve(res);
+				//console.log(ritorno);
+
+				console.log("\n\n\nHere are your meals, enjoy ;) \n");
+				console.log("1) Breakfast: " + res.body.meals[0].title + "\nThe Id of your breakfast is: " + res.body.meals[0].id + "\nThe preparation takes " + res.body.meals[0].readyInMinutes + " minutes\n");
+				console.log("2) Lunch: " + res.body.meals[1].title + "\nThe Id of your breakfast is: " + res.body.meals[1].id + "\nThe preparation takes " + res.body.meals[1].readyInMinutes + " minutes\n");
+				console.log("3) Dinner: " + res.body.meals[2].title + "\nThe Id of your breakfast is: " + res.body.meals[2].id + "\nThe preparation takes " + res.body.meals[2].readyInMinutes + " minutes\n");
+				console.log("The total nutrional values of the meals are: \n" + "Calories = " + res.body.nutrients.calories + "\nProteins =  " + res.body.nutrients.protein +  "\nFat =  " + res.body.nutrients.fat + "\nCarbohydrates=  " + res.body.nutrients.carbohydrates);
+
+			});
+
+	//console.log(ritorno);
+	})
+
+}
+//mealsByCalories(2500, "vegetarian", "olives%2Cshellfish");
+
+
+
+
+
+
+
+
+
+
+
+
 module.exports = {
 	ritorno,
 	mealsByIngredient,
