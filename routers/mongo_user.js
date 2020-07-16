@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+/*
 const dotenv = require("dotenv").config()
 const mealdb = require('./mongo_meal');
 
@@ -6,9 +7,9 @@ mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTop
 const db = mongoose.connection
 
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
+*/
 var Schema = mongoose.Schema;
 
-/* Schema for a user. */
 var userSchema = new Schema({
   username: {
     type: String,
@@ -55,17 +56,15 @@ function createUser (username, password) {
     if (err) throw err
   })
 }
+
 /* Find a User in the collection, returns the password. */
 function findUser (username) {
   return new Promise(function(resolve, reject) {
     User.findOne({ username: username }, { username: 1, password: 1 },
       function (err, res) {
-        if (err)
-          reject(err)
-        else if (res == null)
-          resolve("")
-        else
-          resolve(res.password)
+        if (err)  reject(err)
+        else if (res == null) resolve("")
+        else resolve(res.password)
     })
   })
 }
@@ -79,10 +78,8 @@ function updateCalendarToken (username, token, timeStamp, accessCode) {
 
   return new Promise(function(resolve, reject) {
     User.findOneAndUpdate({ username: username }, update, function (err, res) {
-        if (err)
-          reject(err)
-        else
-          resolve(res)
+        if (err) reject(err)
+        else resolve(res)
     })
   })
 }
@@ -92,10 +89,8 @@ function updateCalendarId (username, id) {
 
   return new Promise(function(resolve, reject) {
     User.findOneAndUpdate({ username: username }, update, function (err, res) {
-        if (err)
-          reject(err)
-        else
-          resolve(res)
+        if (err) reject(err)
+        else resolve(res)
     })
   })
 }
@@ -104,10 +99,8 @@ function getCalendarInfo(username) {
   return new Promise(function(resolve, reject) {
     User.findOne({ username: username }, { username: 1, calendarToken: 1, calendarTimeStamp:1, calendarAccessCode:1, calendarId: 1 },
       function (err, res) {
-        if (err)
-          reject(err)
-        else
-          resolve(res)
+        if (err)  reject(err)
+        else resolve(res)
     })
   })
 }
@@ -120,10 +113,8 @@ function updateTwitterToken (username, token, secret) {
 
   return new Promise(function(resolve, reject) {
     User.findOneAndUpdate({ username: username }, update, function (err, res) {
-        if (err)
-          reject(err)
-        else
-          resolve(res)
+        if (err)  reject(err)
+        else resolve(res)
     })
   })
 }
@@ -132,22 +123,8 @@ function getTwitterInfo(username) {
   return new Promise(function(resolve, reject) {
     User.findOne({ username: username }, { username: 1, twitterToken: 1, twitterSecret:1 },
        function (err, res) {
-        if (err)
-          reject(err)
-        else
-          resolve(res);
-    })
-  })
-}
-
-function checkIngredients(ingredient) {
-  return new Promise(function(resolve, reject) {
-    Ingredient.findOne({ ingredient: ingredient }, { ingredient: 1},
-       function (err, res) {
-        if (err)
-          reject(err)
-        else
-          resolve(res);
+        if (err)  reject(err)
+        else  resolve(res);
     })
   })
 }
@@ -156,7 +133,7 @@ function checkIngredients(ingredient) {
   You can't make the association if the meal is not in the meals collection
   or if the meal has been already associated to the user. */
 function associateMeal(username, id){
-  mealdb.exist(id).then(
+  mealdb.existMeal(id).then(
     function(res) {
       if(res) {
         lookForMeal(username, id).then(
@@ -194,6 +171,16 @@ function lookForMeal(username, id){
   })
 }
 
+/* Validation of the ingredient for the chatbot. */
+function checkIngredients(ingredient) {
+  return new Promise(function(resolve, reject) {
+    Ingredient.findOne({ ingredient: ingredient }, { ingredient: 1 },
+       function (err, res) {
+        if (err)  reject(err)
+        else  resolve(res);
+    })
+  })
+}
 
 module.exports = {
   createUser,

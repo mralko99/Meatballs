@@ -1,14 +1,13 @@
 const mongoose = require('mongoose')
+/*
 const dotenv = require("dotenv").config()
 
-//connecting to the database
 mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false })
 const db = mongoose.connection
 
-db.on('error', console.error.bind(console, 'MongoDB connection error:'));
+db.on('error', console.error.bind(console, 'MongoDB connection error:'));*/
 var Schema = mongoose.Schema;
 
-//Schema for a user
 var mealSchema = new Schema({
   id: {
     type: String,
@@ -46,7 +45,7 @@ function createMeal(id, name, recipe) {
 function updateRecipe(id, recipe) {
   const update = { recipe: recipe }
   return new Promise(function(resolve, reject) {
-    var query = Meal.updateOne({ id: id }, update, function (err, res) {
+    Meal.updateOne({ id: id }, update, function (err, res) {
       if (err) reject(err)
       else resolve(res)
     })
@@ -55,21 +54,30 @@ function updateRecipe(id, recipe) {
 }
 
 /* Check if the meal is in the collection */
-function exist(id) {
+function existMeal(id) {
   return new Promise(function(resolve, reject) {
-    var query = Meal.exists({ id: id }, function (err, res) {
+    Meal.exists({ id: id }, function (err, res) {
       if (err) reject(err)
       else if (res) resolve(true)
       else resolve (false)
     })
-
   })
 }
 
-//IMPLEMENTARE getMealById
+/* Return a meal given the id */
+function getMealById(id){
+  return new Promise(function(resolve, reject) {
+    Meal.findOne({ id: id }, function(err, res) {
+      if (err) reject(err)
+      else if (res == null) resolve(null)
+      else resolve(res)
+    })
+  })
+}
 
 module.exports = {
   createMeal,
   updateRecipe,
-  exist
+  existMeal,
+  getMealById
 }
