@@ -13,8 +13,7 @@ var _twitterConsumerKey = process.env.CONSUMER_KEY;
 var _twitterConsumerSecret = process.env.CONSUMER_SECRET;
 
 var consumer = new oauth.OAuth(
-    "https://twitter.com/oauth/request_token", "https://twitter.com/oauth/access_token", 
-    _twitterConsumerKey, _twitterConsumerSecret, "1.0", "http://127.0.0.1:8080/sessions/callback", "HMAC-SHA1");
+    "https://twitter.com/oauth/request_token", "https://twitter.com/oauth/access_token", _twitterConsumerKey, _twitterConsumerSecret, "1.0", "http://127.0.0.1:8080/sessions/callback", "HMAC-SHA1");
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());

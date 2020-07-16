@@ -1,5 +1,6 @@
 express = require("express")
 enablews = require("express-ws")
+dotenv = require("dotenv").config()
 
 app = express()
 enablews(app)
@@ -11,11 +12,11 @@ app.ws("/chatbot", (ws,req)=> {
 })
 
 app.get("/twitter/callback", (ws,req)=> {
-  
+
 })
 
 app.get("/calendar/callback", (ws,req)=> {
-  
+
 })
 
 app.listen(5000)

@@ -1,10 +1,5 @@
-//const express = require('express')
-//const enablews = require( 'express-ws')
-const mongoDB = require("./mongo_user.js")
+const mongoDB = require("./mongoDB.js")
 const spoonacular = require('./spoonacular.js');
-//const app = express ()
-
-//enablews(app)
 
 auth_status = 0
 main_status = 0
@@ -295,5 +290,3 @@ function get_meals_string (api_meals){
 module.exports = {
   main_chatbot
 }
-
-//app.listen(5000)
