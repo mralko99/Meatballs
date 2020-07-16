@@ -142,29 +142,41 @@ function getTwitterInfo(username) {
 }
 
 /* Associate a meal to a user.
-  You can't make the association if the meal is not in the meals collection
-  or if the meal has been already associated to the user. */
-function associateMeal(username, id){
+  You can't make the association if the meal has been already associated to the user.
+  If the meal does not exists in the collection, it'll be created and then associated to the user.
+  Name and recipe can be null, id can't.                                                         */
+function associateMeal(username, id, name, recipe){
   existMeal(id).then(
     function(res) {
+      var update = {$push: {mealsId: id}}
       if(res) {
         lookForMeal(username, id).then(
-          function(res){
-          if(!res) {
-            var update = {$push: {mealsId: id}}
+          function(res) {
+            if(!res) {
+              return new Promise(function(resolve, reject) {
+                User.findOneAndUpdate({ username: username }, update, function (err, res) {
+                  if (err) reject(err)
+                  else resolve(res)
+                })
+              })
+            } else console.log("DATABASE WARNING the meal you are trying to associate has been already associated for this user.")
+          },
+          function(err){ console.log("promises error in the mongo user: " + err) }
+        )
+      } else {
+        createMeal(id, name, recipe).then(
+          function(res) {
             return new Promise(function(resolve, reject) {
               User.findOneAndUpdate({ username: username }, update, function (err, res) {
                 if (err) reject(err)
                 else resolve(res)
               })
             })
-          } else console.log("DATABASE WARNING the meal you are trying to associate is already associated for this user.")
-        },
-        function(err){ console.log("promises error in the mongo user: " + err) }
-      )
-      } else console.log("DATABASE WARNING the meal you are trying to associate doesn't exist in the meal collection.")
-    },
-    function(err){ console.log("promises error in the mongo user: " + err) }
+          },
+          function(err){ console.log("promises error in the mongo user: " + err) }
+        )
+      }
+    }
   )
 }
 
@@ -195,25 +207,29 @@ function checkIngredients(ingredient) {
 }
 
 /* If meal is not in the collection, it'll be created with the recipe.
-   If meal is already in the collection, the recipe will be updated. */
+   If meal is already in the collection, the name and the recipe will be updated. */
 function createMeal(id, name, recipe) {
   var mealInstance = new Meal ({
     id: id,
     name: name,
     recipe: recipe
   })
+  const update = { name: name, recipe: recipe }
+  const options = { upsert: true, new: true }
   return new Promise(function(resolve, reject) {
-    var query = Meal.findOne({ id: id }, function (err, res) {
+    Meal.findOneAndUpdate({ id: id }, update, options, function (err, res) {
       if (err) reject(err)
-      else if (!query) updateRecipe(id, name, recipe) //se vero, c'è una corrispondenza
-      else mealInstance.save(function(err, res) {
-        if (err) throw err
-        resolve(res)
-      })
+      else if (!res) {
+         mealInstance.save(function(err, res) {
+           if (err) throw err
+         })
+       }
+       resolve(res)
     })
   })
 }
 
+/* è ancora necessaria? boh, lo staremo a vedere :D */
 function updateRecipe(id, recipe) {
   const update = { recipe: recipe }
   return new Promise(function(resolve, reject) {
