@@ -183,29 +183,47 @@ function meals_flow(msg,ws){
 
       else if(msg == "finish"){
           console.log("User ended the ingredients")
-          promise_meals_by_ingredients = spoonacular.mealsByIngredient(ingredients_3_meals)
-          promise_meals_by_ingredients.then(function(result){
-          meals_json = result
-          //console.log(meals_json)
-          answer = get_meals_string(meals_json)
-          ws.send("choose youre recipe, type 1 or 2 or 3")
-          ws.send(answer)
-          sub_flow_status = 1
-          return
+          var promise_meals_by_ingredients = spoonacular.mealsByIngredient(ingredients_3_meals)
+          promise_meals_by_ingredients.then(
+            function(result){
+              meals_json = result
+              //console.log(meals_json)
+              answer = get_meals_string(meals_json)
+              ws.send("choose youre recipe, type 1 or 2 or 3")
+              ws.send(answer)
+              sub_flow_status = 1
+              return
 
-          },function(reject){
-            ws.send("Error foud: "+reject)
-            ws.close()
-          })
+            },
+            function(reject){
+              ws.send("ERROR: "+reject)
+              ws.close()
+            })
       }
 
       else{
         if (msg != "help" && msg != "exit"){
-          if(ingredients_3_meals == ""){
-            ingredients_3_meals = msg
-          }else{
-            ingredients_3_meals = ingredients_3_meals+ "2%C" +msg
-          }
+          console.log(msg)
+          var Ingredient_Promise =  mongoDB.checkIngredients(msg)
+          Ingredient_Promise.then(
+            function(res) {
+              if(res == null){
+                ws.send("L'ingrediente non è valido")
+              }
+              else{
+                if(ingredients_3_meals == ""){
+                  ingredients_3_meals = msg
+                }
+                else{
+                  ingredients_3_meals = ingredients_3_meals+ "2%C" +msg
+                }
+              }
+            },
+            function(err) {
+              ws.send("ERROR:"+err)
+              ws.close()
+            }
+          )
           return
         }
       }

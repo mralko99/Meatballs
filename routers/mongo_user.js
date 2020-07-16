@@ -30,7 +30,19 @@ var userSchema = new Schema({
   twitterSecret: String
 })
 
+var ingredientSchema = new Schema({
+  ingredient: {
+    type: String,
+    required: true
+  },
+  ingredientId: {
+    type: String,
+    required: true
+  },
+})
+
 var User = mongoose.model('User', userSchema);
+var Ingredient = mongoose.model('Ingredient', ingredientSchema);
 
 /* Create a user instance in the users collection. */
 function createUser (username, password) {
@@ -128,6 +140,17 @@ function getTwitterInfo(username) {
   })
 }
 
+function checkIngredients(ingredient) {
+  return new Promise(function(resolve, reject) {
+    Ingredient.findOne({ ingredient: ingredient }, { ingredient: 1},
+       function (err, res) {
+        if (err)
+          reject(err)
+        else
+          resolve(res);
+    })
+  })
+}
 
 /* Associate a meal to a user.
   You can't make the association if the meal is not in the meals collection
@@ -181,5 +204,6 @@ module.exports = {
   updateTwitterToken,
   getTwitterInfo,
   associateMeal,
-  lookForMeal
+  lookForMeal,
+  checkIngredients
 }
