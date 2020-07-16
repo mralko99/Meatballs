@@ -6,6 +6,7 @@ main_status = 0
 sub_flow_status = 0
 ingredients_3_meals = ""
 meals_json = ""
+current_meal = ""
 
 function main_chatbot(ws){
   ws.send('Inserisci username')
@@ -167,7 +168,7 @@ function meals_flow(msg,ws){
   switch (sub_flow_status) {
 
     case 0:
-      ingredients_3_meals = ""
+
 
       if(msg == "reset"){
         sub_flow_status = 0
@@ -183,17 +184,17 @@ function meals_flow(msg,ws){
             function(result){
               meals_json = result
               //console.log(meals_json)
-              answer = get_meals_string(meals_json)
-              ws.send("choose youre recipe, type 1 or 2 or 3")
+              answer = spoonacular.mealsByIngredient_Stringify(meals_json)
+              ws.send("Choose your recipe, type 1 or 2 or 3")
               ws.send(answer)
               sub_flow_status = 1
               return
-
             },
             function(reject){
               ws.send("ERROR: "+reject)
               ws.close()
             })
+
       }
 
       else{
@@ -210,7 +211,7 @@ function meals_flow(msg,ws){
                   ingredients_3_meals = msg
                 }
                 else{
-                  ingredients_3_meals = ingredients_3_meals+ "2%C" +msg
+                  ingredients_3_meals = ingredients_3_meals+ "%2C" +msg
                 }
               }
             },
@@ -226,29 +227,34 @@ function meals_flow(msg,ws){
       break;
 
     case 1:
-      if(isNaN(msg) && parseInt(msg) > 3 && parseInt(msg) < 1){
-        ws.send("This is not a valid number, type again or 'exit' or 'menu'")
-        return 1
-      }
-      console.log("case 1 enter")
-      recipe_ID = meals_json["body"][parseInt(msg) - 1]["id"]
-      recipeById_promise = spoonacular.recipeById(recipe_ID)
-      recipeById_promise.then(function(result){
-          ws.send("This is your recipe, have a good meals!")
-          ws.send(result)
-          ws.send("Se compare il messaggio, ha funzionato, quindi hai un ricetta speciale")
-          ws.send("Cazzi ai cereali")
-          //reset variables
-          ingredients_3_meals = ""
-          meals_json = ""
+      if(!isNaN(msg) && parseInt(msg) <= 3 && parseInt(msg) >= 1){
+        console.log("case 1 enter")
+        recipe_ID = meals_json["body"][parseInt(msg) - 1]["id"]
+        recipeById_promise = spoonacular.recipeById(recipe_ID)
+        recipeById_promise.then(
+          function(result){
+            ws.send("This is your recipe, have a good meals!")
+            ws.send(result)
+            ws.send("Se compare il messaggio, ha funzionato, quindi hai un ricetta speciale")
+            ws.send("Cazzi ai cereali")
+            //reset variables
+            ingredients_3_meals = ""
+            meals_json = ""
 
-          sub_flow_status = 0
-          main_status = 0
-          ws.send("Sei tornato al menu principale")
+            sub_flow_status = 0
+            main_status = 0
+            ingredients_3_meals = ""
+            ws.send("Sei tornato al menu principale")
           return
-      },function(reject){
-        ws.close()
-      })
+          },
+          function(reject){
+            ws.close()
+          })
+      }
+      else {
+        ws.send("This is not a valid number, type again or 'exit' or 'menu'")
+        return
+      }
 
       break;
 
@@ -268,24 +274,6 @@ function calendar_flow(msg,ws){
 function twittter_flow(msg,ws){
 
 }
-
-
-//get string version of meals
-function get_meals_string (api_meals){
-  console.log(api_meals.body)
-  result = ""
-  for (var k = 0; k < 3; k++){
-    var n = k + 1;
-    missingIngredientsNumber = api_meals.body[k].missedIngredientCount;
-    result = result + "Option " + n +") is: " + api_meals.body[k].title + "\nId is: " + api_meals.body[k].id +  "\nHere are the " + missingIngredientsNumber + " missing ingredients: ";
-    for (var i = 0; i < missingIngredientsNumber; i++){
-      result = result + "\n" + api_meals.body[k].missedIngredients[i].name ;
-    }
-    result = result + "\n\n"
-  }
-  return result;
-}
-
 
 module.exports = {
   main_chatbot

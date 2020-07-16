@@ -44,11 +44,6 @@ function getAuthCode(){
   opener(auth_url+"?client_id="+client_id+"&redirect_uri="+redirect_uri+"&scope="+calendar_scope+"&response_type=code")
   console.log("Start getting AuthCode...");
 }
-/*
-function setAuthEmitter(emitter){
-  var authEmitter = emitter
-}
-*/
 
 //get access token function
 function getAccessToken(code, redirect_uri){
@@ -114,7 +109,7 @@ function create_calendar(user,name){
   })
 }
 
-function createEvent(user, accessToken,title, description, startDateTimeString){  //datetime String, format ---> October 13, 2014 11:13:00
+function createEvent(user, title, description, startDateTimeString){  //datetime String, format ---> October 13, 2014 11:13:00
   return new Promise(function(resolve,reject){
     console.log()
       accessToken = getAccessTokenUser(user)
