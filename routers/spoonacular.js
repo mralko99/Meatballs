@@ -171,6 +171,23 @@ function mealsByCalories(calories, diet, exclude){
 
 
 
+//get string version of meals
+function mealsByIngredient_Stringify (api_meals){//ex get_meals_string
+  console.log(api_meals.body)
+  result = ""
+  for (var k = 0; k < 3; k++){
+    var n = k + 1;
+    missingIngredientsNumber = api_meals.body[k].missedIngredientCount;
+    result = result + "Option " + n +") is: " + api_meals.body[k].title + "\nId is: " + api_meals.body[k].id +  "\nHere are the " + missingIngredientsNumber + " missing ingredients: ";
+    for (var i = 0; i < missingIngredientsNumber; i++){
+      result = result + "\n" + api_meals.body[k].missedIngredients[i].name ;
+    }
+    result = result + "\n\n"
+  }
+  return result;
+}
+
+
 
 
 
