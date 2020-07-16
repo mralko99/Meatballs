@@ -141,8 +141,8 @@ function mealsByCalories(calories, diet, exclude){
 
 
 			req.headers({
-				"x-rapidapi-host": "spoonacular-recipe-food-nutrition-v1.p.rapidapi.com",
-				"x-rapidapi-key": "8b7bf76a17mshbf959543e115761p120952jsn499463a234ee",
+				"x-rapidapi-host": process.env.X_RAPIDAPI_HOST,
+				"x-rapidapi-key": process.env.X_RAPIDAPI_KEY,
 				"useQueryString": true
 			});
 
@@ -198,5 +198,7 @@ function mealsByIngredient_Stringify (api_meals){//ex get_meals_string
 module.exports = {
 	ritorno,
 	mealsByIngredient,
+	mealsByIngredient_Stringify,
+	mealsByCalories,
 	recipeById
 }
