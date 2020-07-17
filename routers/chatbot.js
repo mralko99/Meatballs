@@ -1,5 +1,7 @@
 const mongoDB = require("./mongoDB.js")
 const spoonacular = require('./spoonacular.js');
+express = require("express")
+enablews = require("express-ws")
 
 auth_status = 0
 main_status = 0
@@ -7,7 +9,7 @@ sub_flow_status = 0
 ingredients_3_meals = ""
 meals_json = ""
 diet = ""
-exluded_ingredients = ""
+excluded_ingredients = ""
 recipe_ID = ""
 calories_meals_json = {}
 
@@ -128,7 +130,7 @@ function main_chatbot(ws){
 
         //Template
         case 2:
-          console.log("Insert flow here")
+          meals_planner(msg,ws)
           break;
 
         default:
@@ -153,7 +155,7 @@ function chat_flow_router (msg, ws){
       return
       break;
 
-    case "meals_planner":
+    case "meals planner":
       ws.send("Hom many calories do you need?")
       main_status = 2
       break;
@@ -270,8 +272,9 @@ function meals_planner(msg,ws){
         mealsByCalories_promise = spoonacular.mealsByCalories(msg, diet,excluded_ingredients)  //return
         mealsByCalories_promise.then(function(result){
           calories_meals_json = result
+          console.log(result.body)
           ws.send("Here is your recipe")
-          ws.send(calories_meals_stringfy(result))      //funzione per trasformare i JSON in stringa
+          ws.send(calories_meals_stringfy(result.body))      //funzione per trasformare i JSON in stringa
           ws("type yes to accept or no to obtain new recipes")
           sub_flow_status = 1
         }, function (error){
@@ -293,19 +296,19 @@ function meals_planner(msg,ws){
             switch (i) {
               case 0:
                 if(date.getHours()>8){
-                  date.setDay(date.getDay()+1)
+                  date.setDate(date.getDate()+1)
                 }
                 date.setHours(8)
                 break;
               case 1:
                 if(date.getHours()>13){
-                  date.setDay(date.getDay()+1)
+                  date.setDate(date.getDate()+1)
                 }
                 date.setHours(13)
                 break;
               case 2:
                 if(date.getHours()>20){
-                  date.setDay(date.getDay()+1)
+                  date.setDate(date.getDate()+1)
                 }
                 date.setHours(20)
                 break;
@@ -323,13 +326,13 @@ function meals_planner(msg,ws){
 
 
 
-      }else if(msg == "no"{
+      }else if(msg == "no"){
         sub_flow_status = 0
         ws.send("Hom many calories do you need?")       // restart from 0
       }else{
         ws.send("Type yes or no")
         sub_flow_status = 1
-      })
+      }
 
 
       break;
@@ -364,6 +367,16 @@ function get_meals_string (api_meals){
   return result;
 }
 
+
+//funzione provvisoria per stringare il json
+function calories_meals_stringfy(meals_json){
+  result_string = ""
+  for(i = 0; i < 3; i++){
+    result_string = result_string + meals_json[i].title + "\n" + meals_json[i].id +"\n"+ "Tocca farlo meglio \n"
+  }
+
+  return result_string
+}
 
 module.exports = {
   main_chatbot

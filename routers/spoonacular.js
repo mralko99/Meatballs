@@ -111,6 +111,26 @@ function recipeById(Id){
 	})
 }
 
+function meals_by_calories_prova(){
+	result = {
+
+  	"breakfast":{
+      "id": 368974,
+      "title": 'Breakfast Mess'
+    },
+    "launch":{
+      "id": 368955,
+      "title": 'Paula's Flyin' Fryin' UFOs'
+    },
+		"dinner":{
+      "id": 157163,
+      "title": 'Israeli Couscous With Chicken Sausage And Over-Easy Eggs'
+    }
+  }
+
+	return result
+}
+
 
 
 
