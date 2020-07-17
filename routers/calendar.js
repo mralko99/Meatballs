@@ -185,7 +185,7 @@ function getAccessTokenUser(user){
           accessTokenEmissionTimestamp = result.calendarTimeStamp
 
 
-          console.log("[getAccessTokenUser] User access token got, tokenAge: "+accessTokenAge+", user: "+user
+          console.log("[getAccessTokenUser] User access token got, tokenAge: "+accessTokenAge+", user: "+user)
 
           if(accessToken == null || accessCode == null || accessTokenEmissionTimestamp == null){
             //avvia login
@@ -194,21 +194,21 @@ function getAccessTokenUser(user){
               accessCode = accessCode_msg
               getAccessToken_promise = getAccessToken(accessCode, redirect_uri)
               getAccessToken_promise.then(
-                function(result){
-                  accessToken = result
-                  updateCalendarToken_promise = mongoDB.updateCalendarToken(user,result,Date.now(), accessCode)
+                function(result_2){
+                  accessToken = result_2
+                  updateCalendarToken_promise = mongoDB.updateCalendarToken(user,accessToken,Date.now(), accessCode)
                   updateCalendarToken.then(
                     function(result_update){
                       console.log("[getAccessTokenUser] accessToken updated on DB")
                       resolve(accessToken)
                     },
-                    function(error_2){
-                      reject(error_2)
+                    function(error_3){
+                      reject(error_3)
                     }
                   )
                 },
-                function(error){
-                  throw error
+                function(error_2){
+                  reject(error_2)
                 }
               )
             })
@@ -220,30 +220,32 @@ function getAccessTokenUser(user){
             console.log("[getAccessTokenUser] Getting new accessToken...")
             getAccessToken_promise = getAccessToken(accessCode, redirect_uri)
             getAccessToken_promise.then(
-              function(result){
-                accessToken = result
-                updateCalendarToken_promise = mongoDB.updateCalendarToken(user,result,Date.now(), accessCode)
+              function(result_2){
+                accessToken = result_2
+                updateCalendarToken_promise = mongoDB.updateCalendarToken(user,accessToken,Date.now(), accessCode)
                 updateCalendarToken_promise.then(
-                  function(result){
+                  function(result_update){
                     console.log("[getAccessTokenUser] accessToken updated on DB")
                     resolve(accessToken)
                   },
-                  function(error){
-                    reject(error)
+                  function(error_3){
+                    reject(error3)
                   }
                 )
               },
-              function (error){
-                console.error(reject);
-                reject(error)
+              function (error_2){
+                reject(error_2)
               }
             )
           }
-    },
-    function(error){
-
-    })
-  })
+        },
+        function(error){
+          console.error(reject);
+          reject(error)
+        }
+      )
+    }
+  )
 }
 
 
