@@ -115,15 +115,15 @@ function dailyMealsByCalories_prova(){
 
   	"breakfast":{
       "id": 368974,
-      "title": 'Breakfast Mess'
+      "title": "Breakfast Mess"
     },
     "launch":{
       "id": 368955,
-      "title": 'Paula's Flyin' Fryin' UFOs'
+      "title": "Paula's Flyin' Fryin' UFOs"
     },
 		"dinner":{
       "id": 157163,
-      "title": 'Israeli Couscous With Chicken Sausage And Over-Easy Eggs'
+      "title": "Israeli Couscous With Chicken Sausage And Over-Easy Eggs"
     }
   }
 
