@@ -111,7 +111,7 @@ function recipeById(Id){
 }
 
 function dailyMealsByCalories_prova(){
-	result = {
+	prova_result = {
 
   	"breakfast":{
       "id": 368974,
@@ -127,7 +127,7 @@ function dailyMealsByCalories_prova(){
     }
   }
 
-	return prova_result
+	return prova_result;
 }
 
 
