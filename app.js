@@ -1,6 +1,7 @@
 express = require("express")
 enablews = require("express-ws")
 dotenv = require("dotenv").config()
+calendar = require("./routers/calendar")
 
 app = express()
 enablews(app)
@@ -14,6 +15,18 @@ app.ws("/chatbot", (ws,req)=> {
 app.get("/twitter/callback", (ws,req)=> {
 
 })
+
+//google calendar callback
+app.get("/calendar/callback", function(req,res){
+  access_code = req.query.code
+  console.log(req.query)
+  //console.log(req)
+  res.send("access code got!!!"+access_code)
+
+  calendar.authEmitter.emit("accessCodeOK",access_code)
+})
+
+
 
 app.get("/calendar/callback", (ws,req)=> {
 

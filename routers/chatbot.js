@@ -1,5 +1,6 @@
 const mongoDB = require("./mongoDB.js")
 const spoonacular = require('./spoonacular.js');
+const calendar = require('./calendar.js');
 express = require("express")
 enablews = require("express-ws")
 
@@ -269,13 +270,14 @@ function meals_planner(msg,ws){
     case 0:
       console.log("meals_planner, status----> 0")
       if(!isNaN(msg)){    //msg should be calories ---> chack
-        mealsByCalories_promise = spoonacular.mealsByCalories(msg, diet,excluded_ingredients)  //return
+        //funzione provvisoria
+        mealsByCalories_promise = spoonacular.dailyMealsByCalories_prova()//DEFNITIVA ---> spoonacular.mealsByCalories(msg, diet,excluded_ingredients)  //return
         mealsByCalories_promise.then(function(result){
           calories_meals_json = result
-          console.log(result.body)
+          console.log(result)
           ws.send("Here is your recipe")
-          ws.send(calories_meals_stringfy(result.body))      //funzione per trasformare i JSON in stringa
-          ws("type yes to accept or no to obtain new recipes")
+          ws.send(calories_meals_stringfy(result))      //funzione per trasformare i JSON in stringa
+          ws.send("type yes to accept or no to obtain new recipes")
           sub_flow_status = 1
         }, function (error){
           ws.send(error)
@@ -286,46 +288,79 @@ function meals_planner(msg,ws){
       break;
 
     case 1:
+      breakfast_executed = false
+      launch_executed = false
+      dinner_executed = false
       console.log("meals_planner, status----> 1")
       if(msg == "yes"){
-                                        //salva su DB
-        for(i = 0; i < 3; i++){
-          mongoDB.createMeal(calories_meals_json[i].id, calories_meals_json[i].title,null).then(function(result){
-            console.log("meals "+i+" salvato")
-            date = new Date()
-            switch (i) {
-              case 0:
-                if(date.getHours()>8){
-                  date.setDate(date.getDate()+1)
-                }
-                date.setHours(8)
-                break;
-              case 1:
-                if(date.getHours()>13){
-                  date.setDate(date.getDate()+1)
-                }
-                date.setHours(13)
-                break;
-              case 2:
-                if(date.getHours()>20){
-                  date.setDate(date.getDate()+1)
-                }
-                date.setHours(20)
-                break;
+            //###breakfast###
+            console.log("Breakfast")
+            date = new Date()                           //salva su DB
+            if(date.getHours()>8){
+              date.setDate(date.getDate()+1)
             }
+
+
+            console.log("Set events")
+
+            mongoDB.createMeal(calories_meals_json.breakfast.id, calories_meals_json.breakfast.title,null).then(function(result){
+
+              createEvent_promise = calendar.createEvent(user,"devi mangiare",calories_meals_json.breakfast.title+"\nID= "+calories_meals_json.breakfast.id, date)
+
+            },function(error){
+              console.log(error)
+              ws.send(error)
+              ws.close()
+
+            })
+            createEvent_promise.then(function(result){
+              console.log("event calendar creato")
+              if(launch_executed && dinner_executed) ws.send("Meals plan saved!!!")
+              else breakfast_executed = true
+            },function(error){
+              ws.send(error)
+            })
+/*
+            //###launch###
+            date = new Date()                           //salva su DB
+            if(date.getHours()>13){
+              date.setDate(date.getDate()+1)
+            }
+            mongoDB.createMeal(calories_meals_json.launch.id, calories_meals_json.launch.title,null).then(function(result){
+
             return calendar.createEvent(user,"devi mangiare",calories_meals_json[i].title+"\nID= "+calories_meals_json[i].id, date)
-          },function(error){
-            ws.send(error)
-            ws.close()
-          }).then(function(result){
 
-          },function(reject){
-            ws.send(error)
-          }).then()
-        }
+            },function(error){
+              ws.send(error)
+              ws.close()
 
+            }).then(function(result){
+              if(breakfast_executed && dinner_executed) ws.send("Meals plan saved!!!")
+              else launch_executed = true
+            },function(error){
+              ws.send(error)
+            })
 
+            //###dinner###
+            date = new Date()                           //salva su DB
+            if(date.getHours()>13){
+              date.setDate(date.getDate()+1)
+            }
+            mongoDB.createMeal(calories_meals_json.launch.id, calories_meals_json.launch.title,null).then(function(result){
+            console.log("TTTTTTTTTTTTTTTTTT")
+            return calendar.createEvent(user,"devi mangiare",calories_meals_json[i].title+"\nID= "+calories_meals_json[i].id, date)
 
+            },function(error){
+              ws.send(error)
+              ws.close()
+
+            }).then(function(result){
+              if(launch_executed && breakfast_executed) ws.send("Meals plan saved!!!")
+              else dinner_executed = true
+            },function(error){
+              ws.send(error)
+            })
+*/
       }else if(msg == "no"){
         sub_flow_status = 0
         ws.send("Hom many calories do you need?")       // restart from 0
@@ -371,7 +406,7 @@ function get_meals_string (api_meals){
 //funzione provvisoria per stringare il json
 function calories_meals_stringfy(meals_json){
   result_string = ""
-  for(i = 0; i < 3; i++){
+  for(i in meals_json){
     result_string = result_string + meals_json[i].title + "\n" + meals_json[i].id +"\n"+ "Tocca farlo meglio \n"
   }
 

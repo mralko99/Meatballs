@@ -15,7 +15,7 @@ auth_url = "https://accounts.google.com/o/oauth2/v2/auth"
 
 calendar_scope = "https://www.googleapis.com/auth/calendar"
 
-redirect_uri = "http://localhost:1234/test_auth"
+redirect_uri = "http://localhost:5000/calendar/callback"
 
 token_request_url = "https://oauth2.googleapis.com/token"
 
@@ -42,7 +42,7 @@ authEmitter =  new events.EventEmitter()
 function getAuthCode(){
   console.log()
   opener(auth_url+"?client_id="+client_id+"&redirect_uri="+redirect_uri+"&scope="+calendar_scope+"&response_type=code")
-  console.log("Start getting AuthCode...");
+  console.log("[getAuthCode]Start getting AuthCode...");
 }
 
 //get access token function
@@ -58,7 +58,7 @@ function getAccessToken(code, redirect_uri){
     "grant_type":"authorization_code"
   }
   return new Promise(function(resolve,reject){
-      console.log("Starting Request for Access Token...\n"+body);
+      console.log("[getAccessToken] Starting Request for Access Token...\n"+body);
       request.post({
         url:url,body:body,"json":true
       },function(error,response,body){
@@ -68,7 +68,7 @@ function getAccessToken(code, redirect_uri){
 
         body_json = body
         resolve(body_json.access_token)
-        console.log("request_token_message_response: "+ body_json.access_token)
+        console.log("[getAccessToken] request_token_message_response: "+ body_json.access_token)
       })
   })
 
@@ -76,31 +76,35 @@ function getAccessToken(code, redirect_uri){
 
 
 
-function create_calendar(user,name){
+function createCalendar(user,name){
   console.log()
   return new Promise (function(resolve,reject) {
 
-      url = create_calendar_endpoint+"?key="+api_key
+      getAccessTokenUser(user).then(function (result) {
+        url = create_calendar_endpoint+"?key="+api_key
 
-      body = {"summary":name}
-      headers = {"Authorization": "Bearer "+access_token,
-                 "Accept": "application/json"
-      }
-      console.log("Start creating calendar, request data: \n"+body)
-      request.post({
-        url:url,
-        body:body,
-        "json":true,
-        headers:headers}, function(err,response,body){
-        console.log(body)
-      }, function (error, res, body){
+        body = {"summary":name}
+        headers = {"Authorization": "Bearer "+result,
+                   "Accept": "application/json"
+        }
+        console.log("[createCalendar] Start creating calendar, request data: \n")
+        request.post({
+          url:url,
+          body:body,
+          "json":true,
+          headers:headers}, function(err,response,body){
+          console.log(body)
+        }, function (error, res, body){
 
-        if(error) reject(error)
-        conosle.log("Updateing calendar data on DB..")
-        updateCalendarId_promise = mongoDB.updateCalendarId(user, body.id)
-        updateCalendarId_promise.then(function(result){
-          resolve(true)
-
+          if(error) reject(error)
+          console.log("[createCalendar] Updateing calendarId data on DB..")
+          console.log(body.id)
+          updateCalendarId_promise = mongoDB.updateCalendarId(user, body.id)
+          updateCalendarId_promise.then(function(result){
+            resolve(body.id)
+          },function(error){
+            reject(error)
+          })
         }, function(reject){
           reject(reject)
         })
@@ -110,118 +114,161 @@ function create_calendar(user,name){
 }
 
 function createEvent(user, title, description, startDateTimeString){  //datetime String, format ---> October 13, 2014 11:13:00
+  console.log()
   return new Promise(function(resolve,reject){
-    console.log()
-      accessToken = getAccessTokenUser(user)
-      calendarId = getCalendarId(user)
-      consolo.log("creating new event, user: "+user)
-      url = "https://www.googleapis.com/calendar/v3/calendars/"+calendarId+"/events?key="+api_key
-      headers = {"Authorization": "Bearer "+access_token,
-                 "Accept": "application/json"
-      }
 
+      getAccessTokenUser(user).then(
+        function(result){
+          access_token = result
+          getCalendarId_promise = getCalendarId(user)
+          getCalendarId_promise.then(
+            function(result){
+              console.log("[CreateEvent] Calendarid:   "+calendarId)
+              calendarId = result
+              console.log("[CreateEvent] creating new event, user: "+user)
+              url = "https://www.googleapis.com/calendar/v3/calendars/"+calendarId+"/events?key="+api_key
+              headers = {
+                "Authorization": "Bearer "+access_token,
+                "Accept": "application/json"
+              }
 
-      startDateTime = new Date(startDateTimeString)
-      if(startDateTime == "Invalid Date"){
-        reject("Invalid Date")
-      }
-      endDateTime = new Date(startDateTimeString)
+              startDateTime = new Date(startDateTimeString)
+              if(startDateTime == "Invalid Date"){
+                reject("Invalid Date")
+              }
+              endDateTime = new Date(startDateTimeString)
 
-      endDateTime.setMinutes(endDateTime.getMinutes() + 60)
+              endDateTime.setMinutes(endDateTime.getMinutes() + 60)
 
-      body = {
-        "summary":title,
-        "description":description,
-        "start":{
-          "dateTime":startDateTime
+              body = {
+                "summary":title,
+                "description":description,
+                "start":{
+                  "dateTime":startDateTime
+                },
+                "end":{
+                  "dateTime":endDateTime
+                }
+              }
+              console.log("[Create event] Request for a new event, request body: \n"+JSON.stringify(body)+"\n"+"url "+url)
+
+              request.post({ url:url, headers:headers, body:body, "json":true},
+                function(error,res,body){
+                  console.log("[Create event] Event creation result ")
+                  if(error){
+                    reject(error)
+                  }
+                  console.log("[Create event]"+body)
+                  resolve("Success")
+                }
+              )
+            },
+            function(error){
+              throw error
+            })
         },
-        "end":{
-          "dateTime":endDateTime
-        }
-      }
-      console.log("Request for a new event, request body: \n"+body)
-
-      request.post({
-        url:url, headers:headers, body:body, "json":true
-      }, function(error, res,body){
-        conosle.log("Event creation result ")
-        if(error){
-          reject(error)
-        }
-        resolve(true)
-
-      })
-
-
+        function(error){
+          throw error
+        })
   })
-
 }
 
 function getAccessTokenUser(user){
+  return new Promise(
+    function(resolve,reject){
       console.log()
       getCalendarInfo_promise = mongoDB.getCalendarInfo(user)
-      getCalendarInfo_promise.then(function(resolve){
-      accessToken = resolve.accessToken
-      accessCode = resolve.accessCode
-      accessTokenEmissionTimestamp = resolve.calendarTimeStamp
+      getCalendarInfo_promise.then(
+        function(result){
+          accessToken = result.accessToken
+          accessCode = result.accessCode
+          accessTokenEmissionTimestamp = result.calendarTimeStamp
 
-      accessTokenAge = Date.now() - accessTokenEmissionTimestamp
-      console.log("User access token got, tokenAge: "+accessTokenAge+", user: "+user)
-      if(accessToken == null){
-        //avvia login
-        getAuthCode()
-        authEmitter.on("accessCodeOK", (accessCode)=>{
-          getAccessToken_promise = getAccessToken(accessCode, redirect_uri)
-          getAccessToken_promise.then(function(result){
-            accessToken = result
-            return mongoDB.updateCalendarToken(user,result,Date.now(), accessCode)
-          }, function(error){
-            throw error
-          }).then(function(result){
-            console.log("accessToken updated on DB")
-            return accessToken
-          }, function(error){
-            throw error
-          })
-        })
 
-      }else if(accessTokenAge < process.env.GOOGLE_CALENDAR_TIMESTAMP_DURATION - 10000){
-        return accessToken
-      }else{
-        console.log("Getting new accessToken...")
-        getAccessToken_promise = getAccessToken(accessCode, redirect_uri)
-        getAccessToken_promise.then(function(result){
-        accessToken = result
+          console.log("[getAccessTokenUser] User access token got, tokenAge: "+accessTokenAge+", user: "+user
 
-        return mongoDB.updateCalendarToken(user,result,Date.now(), accessCode)
-
-        },function (reject){
-          console.error(reject);
-          throw error
-        }).then(function(result){
-          console.log("accessToken updated on DB")
-          return accessToken
-        }, function(error){
-          throw error
-        })
-      }
-
+          if(accessToken == null || accessCode == null || accessTokenEmissionTimestamp == null){
+            //avvia login
+            getAuthCode()
+            authEmitter.on("accessCodeOK", (accessCode_msg)=>{
+              accessCode = accessCode_msg
+              getAccessToken_promise = getAccessToken(accessCode, redirect_uri)
+              getAccessToken_promise.then(
+                function(result){
+                  accessToken = result
+                  updateCalendarToken_promise = mongoDB.updateCalendarToken(user,result,Date.now(), accessCode)
+                  updateCalendarToken.then(
+                    function(result_update){
+                      console.log("[getAccessTokenUser] accessToken updated on DB")
+                      resolve(accessToken)
+                    },
+                    function(error_2){
+                      reject(error_2)
+                    }
+                  )
+                },
+                function(error){
+                  throw error
+                }
+              )
+            })
+          }
+          else if(Date.now() - accessTokenEmissionTimestamp < process.env.GOOGLE_CALENDAR_TIMESTAMP_DURATION - 20000){
+            resolve(accessToken)
+          }
+          else{
+            console.log("[getAccessTokenUser] Getting new accessToken...")
+            getAccessToken_promise = getAccessToken(accessCode, redirect_uri)
+            getAccessToken_promise.then(
+              function(result){
+                accessToken = result
+                updateCalendarToken_promise = mongoDB.updateCalendarToken(user,result,Date.now(), accessCode)
+                updateCalendarToken_promise.then(
+                  function(result){
+                    console.log("[getAccessTokenUser] accessToken updated on DB")
+                    resolve(accessToken)
+                  },
+                  function(error){
+                    reject(error)
+                  }
+                )
+              },
+              function (error){
+                console.error(reject);
+                reject(error)
+              }
+            )
+          }
+    },
+    function(error){
 
     })
+  })
 }
 
 
 
 function getCalendarId(user) {
-    console.log()
-    console.log("Getting calendarId, user: "+user)
-    getCalendarInfo_promise = mongoDB.getCalendarInfo(user)
-    getCalendarInfo_promise.then(function(resolve){
-    caledarId = resolve.getCalendarId
-    console.log("Returning new calendarId: "+calendarId)
-    return calendarId
-  }, function(error){
-    throw error
+  return new Promise(function(resolve,reject){
+
+      console.log()
+      console.log("[getCalendarId] Getting calendarId, user: "+user)
+      getCalendarInfo_promise = mongoDB.getCalendarInfo(user)
+      getCalendarInfo_promise.then(function(result){
+        calendarId = result.calendarId
+        console.log("[getCalendarId] gsjugJDHSDIHSOIHOISI "+calendarId)
+        if(calendarId == undefined){
+            createCalendar(user,"Diet").then(function(result){
+              resolve(result)
+            },function(error){
+              reject(error)
+            })
+        }else{
+          resolve(calendarId)
+        }
+      },function(error){
+        reject(error)
+      })
   })
 }
 
@@ -230,7 +277,7 @@ function getCalendarId(user) {
 module.exports = {
   getAuthCode,
   getAccessToken,
-  create_calendar,
+  createCalendar,
   createEvent,
   authEmitter
 }
