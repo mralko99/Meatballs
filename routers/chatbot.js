@@ -294,73 +294,77 @@ function meals_planner(msg,ws){
       console.log("meals_planner, status----> 1")
       if(msg == "yes"){
         //###breakfast###
-        console.log("Eseguito")
         console.log("Breakfast")
         date = new Date()                           //salva su DB
         if(date.getHours()>8){
           date.setDate(date.getDate()+1)
         }
+        date.setHours(8)
+        ws.send("Breakfast at "+date)
         mongoDB.createMeal(calories_meals_json.breakfast.id, calories_meals_json.breakfast.title,null).then(
           function(result){
-            calendar.createEvent(user,"devi mangiare",calories_meals_json.breakfast.title+"\nID= "+calories_meals_json.breakfast.id, date).then(
-              function(result_2){
-                return mongoDB.createMeal(calories_meals_json.launch.id, calories_meals_json.launch.title,null)
-              },
-              function(error_2){
-                ws.send(error_2)
-                ws.close()
-              }
-            )
+            return calendar.createEvent(user,"devi mangiare",calories_meals_json.breakfast.title+"\nID= "+calories_meals_json.breakfast.id, date)
           },
           function(error){
             console.log(error)
             ws.send(error)
             ws.close()
           }
-        ).then(//per vedere se funziona correttamente
-          function(result){
-            console.log("Eseguito")
-            console.log("launch")
+        ).then(
+          function(result_2){
+            ws.send("Breakfast OK!! ")
+            return mongoDB.createMeal(calories_meals_json.launch.id, calories_meals_json.launch.title,null)
+          },
+          function(error_2){
+            ws.send(error_2)
+            ws.close()
+          }
+        ).then(
+          function(result_3){
+            console.log("Launch")
             date = new Date()                           //salva su DB
             if(date.getHours()>13){
               date.setDate(date.getDate()+1)
             }
-            calendar.createEvent(user,"devi mangiare",calories_meals_json.launch.title+"\nID= "+calories_meals_json.launch.id, date).then(
-              function(result_2){
-                return mongoDB.createMeal(calories_meals_json.dinner.id, calories_meals_json.dinner.title,null)
-              },
-              function(error_2){
-                ws.send(error_2)
-                ws.close()
-              }
-            )
-
+            date.setHours(13)
+            ws.send("Launch at "+date)
+            return calendar.createEvent(user,"devi mangiare",calories_meals_json.launch.title+"\nID= "+calories_meals_json.launch.id, date)
           },
-          function(error){
-            ws.send(error)
+          function(error_3){
+            ws.send(error_2)
             ws.close()
           }
         ).then(
-          function(result){
-            console.log("Eseguito")
-            console.log("launch")
+          function(result_4){
+            ws.send("Launch OK!!")
+            return mongoDB.createMeal(calories_meals_json.dinner.id, calories_meals_json.dinner.title,null)
+          },
+          function(error_4){
+            ws.send(error_2)
+            ws.close()
+          }
+        ).then(
+          function(result_5){
+            console.log("Dinner")
             date = new Date()                           //salva su DB
             if(date.getHours()>20){
               date.setDate(date.getDate()+1)
             }
-            calendar.createEvent(user,"devi mangiare",calories_meals_json.dinner.title+"\nID= "+calories_meals_json.dinner.id, date).then(
-              function(result_2){
-                ws.send("All meals saved!!!")
-              },
-              function(error_2){
-                ws.send(error_2)
-                ws.close()
-              }
-            )
-
+            date.setHours(20)
+            ws.send("Dinner at "+date)
+            return calendar.createEvent(user,"devi mangiare",calories_meals_json.dinner.title+"\nID= "+calories_meals_json.dinner.id, date)
           },
-          function(error){
-            ws.send(error)
+          function(error_5){
+            ws.send(error_2)
+            ws.close()
+          }
+        ).then(
+          function(result_6){
+            ws.send("Dinner OK!!")
+            ws.send("All meals saved!!!")
+          },
+          function(error_6){
+            ws.send(error_6)
             ws.close()
           }
         )

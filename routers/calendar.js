@@ -133,10 +133,13 @@ function createEvent(user, title, description, startDateTimeString){  //datetime
               if(startDateTime == "Invalid Date"){
                 reject("Invalid Date")
               }
+              console.log("\nstartDateTime: "+startDateTime+"\n")
               endDateTime = new Date(startDateTimeString)
 
               endDateTime.setMinutes(endDateTime.getMinutes() + 60)
-
+              startDateTime.setMinutes(0)
+              endDateTime.setMinutes(0)
+              
               body = {
                 "summary":title,
                 "description":description,
