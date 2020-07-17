@@ -6,9 +6,8 @@ mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTop
 const db = mongoose.connection
 
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
-
 var Schema = mongoose.Schema;
-
+/* Schemas definition */
 var userSchema = new Schema({
   username: {
     type: String,
@@ -57,8 +56,10 @@ var User = mongoose.model('User', userSchema);
 var Ingredient = mongoose.model('Ingredient', ingredientSchema);
 var Meal = mongoose.model('Meal', mealSchema);
 
+/* ----------------------------------- USER ------------------------------------------ */
+
 /* Create a user instance in the users collection. */
-function createUser (username, password) {
+function createUser(username, password) {
   var userInstance = new User ({
     username: username,
     password: password
@@ -69,8 +70,21 @@ function createUser (username, password) {
   })
 }
 
+/* Given a username, returns all the meals associated to the user */
+function getUserMeals(username) {
+  return new Promise(function(resolve, reject) {
+    User.findOne({ username: username }, { username: 1, mealsId: 1 },
+      function (err, res) {
+        if (err)  reject(err)
+        else if (res != null) resolve(res.mealsId)
+        else resolve(null)
+    })
+  })
+}
+
+// ATTENZIONE findUser è cambiata in getUserPassword
 /* Find a User in the collection, returns the password. */
-function findUser (username) {
+function getUserPassword(username) {
   return new Promise(function(resolve, reject) {
     User.findOne({ username: username }, { username: 1, password: 1 },
       function (err, res) {
@@ -81,7 +95,7 @@ function findUser (username) {
   })
 }
 
-function updateCalendarToken (username, token, timeStamp, accessCode) {
+function updateCalendarToken(username, token, timeStamp, accessCode) {
   const update = {
     calendarToken: token,
     calendarTimeStamp: timeStamp,
@@ -96,7 +110,7 @@ function updateCalendarToken (username, token, timeStamp, accessCode) {
   })
 }
 
-function updateCalendarId (username, id) {
+function updateCalendarId(username, id) {
   const update = { calendarId: id }
 
   return new Promise(function(resolve, reject) {
@@ -117,7 +131,7 @@ function getCalendarInfo(username) {
   })
 }
 
-function updateTwitterToken (username, token, secret) {
+function updateTwitterToken(username, token, secret) {
   const update = {
     twitterToken: token,
     twitterSecret: secret
@@ -141,6 +155,8 @@ function getTwitterInfo(username) {
   })
 }
 
+/* ----------------------------------- MEAL ------------------------------------------ */
+
 /* Associate a meal to a user.
   You can't make the association if the meal has been already associated to the user.
   If the meal does not exists in the collection, it'll be created and then associated to the user.
@@ -161,7 +177,7 @@ function associateMeal(username, id, name, recipe){
               })
             } else console.log("DATABASE WARNING the meal you are trying to associate has been already associated for this user.")
           },
-          function(err){ console.log("promises error in the mongo user: " + err) }
+        function(err){ console.log("associateMeal error in the mongoDB: " + err) }
         )
       } else {
         createMeal(id, name, recipe).then(
@@ -173,7 +189,7 @@ function associateMeal(username, id, name, recipe){
               })
             })
           },
-          function(err){ console.log("promises error in the mongo user: " + err) }
+          function(err){ console.log("associateMeal error in the mongoDB: " + err) }
         )
       }
     }
@@ -209,13 +225,13 @@ function checkIngredients(ingredient) {
 /* If meal is not in the collection, it'll be created with the recipe.
    If meal is already in the collection, the name and the recipe will be updated. */
 function createMeal(id, name, recipe) {
-  var mealInstance = new Meal ({
+  mealInstance = new Meal ({
     id: id,
     name: name,
     recipe: recipe
   })
-  const update = { name: name, recipe: recipe }
-  const options = { upsert: true, new: true }
+  update = { name: name, recipe: recipe }
+  options = { upsert: true, new: true }
   return new Promise(function(resolve, reject) {
     Meal.findOneAndUpdate({ id: id }, update, options, function (err, res) {
       if (err) reject(err)
@@ -231,13 +247,12 @@ function createMeal(id, name, recipe) {
 
 /* è ancora necessaria? boh, lo staremo a vedere :D */
 function updateRecipe(id, recipe) {
-  const update = { recipe: recipe }
+  update = { recipe: recipe }
   return new Promise(function(resolve, reject) {
     Meal.updateOne({ id: id }, update, function (err, res) {
       if (err) reject(err)
       else resolve(res)
     })
-
   })
 }
 
@@ -253,7 +268,7 @@ function existMeal(id) {
 }
 
 /* Return a meal given the id */
-function getMealById(id){
+function getMealById(id) {
   return new Promise(function(resolve, reject) {
     Meal.findOne({ id: id }, function(err, res) {
       if (err) reject(err)
@@ -263,9 +278,42 @@ function getMealById(id){
   })
 }
 
+/* Return all the meals given an array of id */
+function getMealsByIds(id) {
+  return new Promise(function(resolve, reject) {
+    Meal.find({ id: id }, function (err, res) {
+      if (err) reject(err)
+      else resolve(res)
+    })
+  })
+}
+
+/* Usare recipeById */
+function viewRecipe(id) {
+
+}
+
+/* Find all the ids meal of a user which have the word "key" into their name. */
+async function selectRecipe(username, key) {
+  result = new Array();
+  return getMealsByIds(await getUserMeals(username)).then(
+    function(res){
+      for(i = 0, j = 0; i < res.length; i++){
+        if(res[i].recipe.includes(key)) {
+          result[j] = res[i].id
+          j++
+        }
+      }
+      return result
+    }, function(err){ console.log("selectRecipe error in the mongoDB: " + err); }
+  )
+}
+
+
 module.exports = {
   createUser,
-  findUser,
+  getUserMeals,
+  getUserPassword,
   getCalendarInfo,
   updateCalendarToken,
   updateCalendarId,
@@ -277,5 +325,8 @@ module.exports = {
   createMeal,
   updateRecipe,
   existMeal,
-  getMealById
+  getMealById,
+  getMealsByIds,
+  viewRecipe,
+  selectRecipe
 }
