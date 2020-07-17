@@ -78,45 +78,42 @@ function getAccessToken(code, redirect_uri){
 
 function createCalendar(user,name){
   console.log()
-  return new Promise (function(resolve,reject) {
+  return new Promise(
+    function(resolve,reject) {
+      getAccessTokenUser(user).then(
+        function (result) {
+          url = create_calendar_endpoint+"?key="+api_key
 
-      getAccessTokenUser(user).then(function (result) {
-        url = create_calendar_endpoint+"?key="+api_key
-
-        body = {"summary":name}
-        headers = {"Authorization": "Bearer "+result,
-                   "Accept": "application/json"
-        }
-        console.log("[createCalendar] Start creating calendar, request data: \n")
-        request.post({
-          url:url,
-          body:body,
-          "json":true,
-          headers:headers}, function(err,response,body){
-          console.log(body)
-        }, function (error, res, body){
-
-          if(error) reject(error)
-          console.log("[createCalendar] Updateing calendarId data on DB..")
-          console.log(body.id)
-          updateCalendarId_promise = mongoDB.updateCalendarId(user, body.id)
-          updateCalendarId_promise.then(function(result){
-            resolve(body.id)
-          },function(error){
-            reject(error)
-          })
-        }, function(reject){
-          reject(reject)
-        })
-      })
-
-  })
+          body = {"summary":name}
+          headers = {
+            "Authorization": "Bearer "+result,
+            "Accept": "application/json"
+          }
+          console.log("[createCalendar] Start creating calendar, request data: \nurl: "+url+"\nheaders: "+JSON.stringify(headers))
+          request.post({url:url, body:body, "json":true,headers:headers},
+            function(err,response,body){
+              console.log(body)
+              if(err) reject(err)
+              console.log("[createCalendar] Updateing calendarId data on DB..")
+              console.log(body.id)
+              updateCalendarId_promise = mongoDB.updateCalendarId(user, body.id)
+              updateCalendarId_promise.then(
+                function(result_2){ resolve(body.id) },
+                function(error_2){ reject(error_2) }
+              )
+            }
+          )
+        },
+        function(error){ reject(error) }
+      )
+    }
+  )
 }
 
 function createEvent(user, title, description, startDateTimeString){  //datetime String, format ---> October 13, 2014 11:13:00
   console.log()
   return new Promise(function(resolve,reject){
-
+      console.log("[create event] function ok")
       getAccessTokenUser(user).then(
         function(result){
           access_token = result
@@ -180,13 +177,11 @@ function getAccessTokenUser(user){
       getCalendarInfo_promise = mongoDB.getCalendarInfo(user)
       getCalendarInfo_promise.then(
         function(result){
-          accessToken = result.accessToken
-          accessCode = result.accessCode
+          console.log("[getAccessTokenUser] Response from DB: "+JSON.stringify(result))
+          accessToken = result.calendarToken
+          accessCode = result.calendarAccessCode
           accessTokenEmissionTimestamp = result.calendarTimeStamp
-
-
-          console.log("[getAccessTokenUser] User access token got, tokenAge: "+accessTokenAge+", user: "+user)
-
+          console.log("[getAccessTokenUser] Obtained from DB: \naccessToken = "+accessToken+"\naccessCode= "+accessCode+"\naccessTookenEmissionTimestamp= "+accessTokenEmissionTimestamp+"\n")
           if(accessToken == null || accessCode == null || accessTokenEmissionTimestamp == null){
             //avvia login
             getAuthCode()
@@ -197,7 +192,7 @@ function getAccessTokenUser(user){
                 function(result_2){
                   accessToken = result_2
                   updateCalendarToken_promise = mongoDB.updateCalendarToken(user,accessToken,Date.now(), accessCode)
-                  updateCalendarToken.then(
+                  updateCalendarToken_promise.then(
                     function(result_update){
                       console.log("[getAccessTokenUser] accessToken updated on DB")
                       resolve(accessToken)
@@ -214,6 +209,7 @@ function getAccessTokenUser(user){
             })
           }
           else if(Date.now() - accessTokenEmissionTimestamp < process.env.GOOGLE_CALENDAR_TIMESTAMP_DURATION - 20000){
+            console.log("[getAccessTokenUser] Token ancora valido!")
             resolve(accessToken)
           }
           else{
@@ -240,7 +236,6 @@ function getAccessTokenUser(user){
           }
         },
         function(error){
-          console.error(reject);
           reject(error)
         }
       )
@@ -251,27 +246,34 @@ function getAccessTokenUser(user){
 
 
 function getCalendarId(user) {
-  return new Promise(function(resolve,reject){
-
+  return new Promise(
+    function(resolve,reject){
       console.log()
       console.log("[getCalendarId] Getting calendarId, user: "+user)
-      getCalendarInfo_promise = mongoDB.getCalendarInfo(user)
-      getCalendarInfo_promise.then(function(result){
-        calendarId = result.calendarId
-        console.log("[getCalendarId] gsjugJDHSDIHSOIHOISI "+calendarId)
-        if(calendarId == undefined){
-            createCalendar(user,"Diet").then(function(result){
-              resolve(result)
-            },function(error){
-              reject(error)
-            })
-        }else{
-          resolve(calendarId)
+      mongoDB.getCalendarInfo(user).then(
+        function(result){
+          calendarId = result.calendarId
+          console.log("[getCalendarId] calendarId: "+calendarId)
+          if(calendarId == undefined || calendarId == null){
+            createCalendar(user,"Diet").then(
+              function(result_2){
+                resolve(result_2)
+              },
+              function(error_2){
+                reject(error_2)
+              }
+            )
+          }
+          else{
+            resolve(calendarId)
+          }
+        },
+        function(error){
+          reject(error)
         }
-      },function(error){
-        reject(error)
-      })
-  })
+      )
+    }
+  )
 }
 
 

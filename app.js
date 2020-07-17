@@ -22,7 +22,7 @@ app.get("/calendar/callback", function(req,res){
   console.log(req.query)
   //console.log(req)
   res.send("access code got!!!"+access_code)
-
+  console.log("ATTENZIONE IMPORTANTE!!!!"+JSON.stringify(req.query))
   calendar.authEmitter.emit("accessCodeOK",access_code)
 })
 

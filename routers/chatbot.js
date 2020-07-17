@@ -25,7 +25,7 @@ function main_chatbot(ws){
 
         //Start point
         case 0:
-            var User_Promise =  mongoDB.findUser(msg)
+            var User_Promise =  mongoDB.getUserPassword(msg)
             User_Promise.then(
               function(res) {
                 user = msg
@@ -271,115 +271,108 @@ function meals_planner(msg,ws){
       console.log("meals_planner, status----> 0")
       if(!isNaN(msg)){    //msg should be calories ---> chack
         //funzione provvisoria
-        mealsByCalories_promise = spoonacular.dailyMealsByCalories_prova()//DEFNITIVA ---> spoonacular.mealsByCalories(msg, diet,excluded_ingredients)  //return
-        mealsByCalories_promise.then(function(result){
-          calories_meals_json = result
-          console.log(result)
-          ws.send("Here is your recipe")
-          ws.send(calories_meals_stringfy(result))      //funzione per trasformare i JSON in stringa
-          ws.send("type yes to accept or no to obtain new recipes")
-          sub_flow_status = 1
-        }, function (error){
-          ws.send(error)
-          ws.close()
-        })
+        mealsByCalories_promise = dailyMealsByCalories_prova()//DEFNITIVA ---> spoonacular.mealsByCalories(msg, diet,excluded_ingredients)  //return
+        mealsByCalories_promise.then(
+          function(result){
+            calories_meals_json = result
+            console.log(result)
+            ws.send("Here is your recipe")
+            ws.send(calories_meals_stringfy(result))      //funzione per trasformare i JSON in stringa
+            ws.send("type yes to accept or no to obtain new recipes")
+            sub_flow_status = 1
+          },
+          function (error){
+            ws.send(error)
+            ws.close()
+          }
+        )
       }
 
       break;
 
     case 1:
-      breakfast_executed = false
-      launch_executed = false
-      dinner_executed = false
       console.log("meals_planner, status----> 1")
       if(msg == "yes"){
-            //###breakfast###
-            console.log("Breakfast")
-            date = new Date()                           //salva su DB
-            if(date.getHours()>8){
-              date.setDate(date.getDate()+1)
-            }
-
-
-            console.log("Set events")
-
-            mongoDB.createMeal(calories_meals_json.breakfast.id, calories_meals_json.breakfast.title,null).then(function(result){
-
-              createEvent_promise = calendar.createEvent(user,"devi mangiare",calories_meals_json.breakfast.title+"\nID= "+calories_meals_json.breakfast.id, date)
-
-            },function(error){
-              console.log(error)
-              ws.send(error)
-              ws.close()
-
-            })
-            createEvent_promise.then(function(result){
-              console.log("event calendar creato")
-              if(launch_executed && dinner_executed) ws.send("Meals plan saved!!!")
-              else breakfast_executed = true
-            },function(error){
-              ws.send(error)
-            })
-/*
-            //###launch###
-            date = new Date()                           //salva su DB
-            if(date.getHours()>13){
-              date.setDate(date.getDate()+1)
-            }
-            mongoDB.createMeal(calories_meals_json.launch.id, calories_meals_json.launch.title,null).then(function(result){
-
-            return calendar.createEvent(user,"devi mangiare",calories_meals_json[i].title+"\nID= "+calories_meals_json[i].id, date)
-
-            },function(error){
-              ws.send(error)
-              ws.close()
-
-            }).then(function(result){
-              if(breakfast_executed && dinner_executed) ws.send("Meals plan saved!!!")
-              else launch_executed = true
-            },function(error){
-              ws.send(error)
-            })
-
-            //###dinner###
+        //###breakfast###
+        console.log("Eseguito")
+        console.log("Breakfast")
+        date = new Date()                           //salva su DB
+        if(date.getHours()>8){
+          date.setDate(date.getDate()+1)
+        }
+        mongoDB.createMeal(calories_meals_json.breakfast.id, calories_meals_json.breakfast.title,null).then(
+          function(result){
+            calendar.createEvent(user,"devi mangiare",calories_meals_json.breakfast.title+"\nID= "+calories_meals_json.breakfast.id, date).then(
+              function(result_2){
+                return mongoDB.createMeal(calories_meals_json.launch.id, calories_meals_json.launch.title,null)
+              },
+              function(error_2){
+                ws.send(error_2)
+                ws.close()
+              }
+            )
+          },
+          function(error){
+            console.log(error)
+            ws.send(error)
+            ws.close()
+          }
+        ).then(//per vedere se funziona correttamente
+          function(result){
+            console.log("Eseguito")
+            console.log("launch")
             date = new Date()                           //salva su DB
             if(date.getHours()>13){
               date.setDate(date.getDate()+1)
             }
-            mongoDB.createMeal(calories_meals_json.launch.id, calories_meals_json.launch.title,null).then(function(result){
-            console.log("TTTTTTTTTTTTTTTTTT")
-            return calendar.createEvent(user,"devi mangiare",calories_meals_json[i].title+"\nID= "+calories_meals_json[i].id, date)
+            calendar.createEvent(user,"devi mangiare",calories_meals_json.launch.title+"\nID= "+calories_meals_json.launch.id, date).then(
+              function(result_2){
+                return mongoDB.createMeal(calories_meals_json.dinner.id, calories_meals_json.dinner.title,null)
+              },
+              function(error_2){
+                ws.send(error_2)
+                ws.close()
+              }
+            )
 
-            },function(error){
-              ws.send(error)
-              ws.close()
+          },
+          function(error){
+            ws.send(error)
+            ws.close()
+          }
+        ).then(
+          function(result){
+            console.log("Eseguito")
+            console.log("launch")
+            date = new Date()                           //salva su DB
+            if(date.getHours()>20){
+              date.setDate(date.getDate()+1)
+            }
+            calendar.createEvent(user,"devi mangiare",calories_meals_json.dinner.title+"\nID= "+calories_meals_json.dinner.id, date).then(
+              function(result_2){
+                ws.send("All meals saved!!!")
+              },
+              function(error_2){
+                ws.send(error_2)
+                ws.close()
+              }
+            )
 
-            }).then(function(result){
-              if(launch_executed && breakfast_executed) ws.send("Meals plan saved!!!")
-              else dinner_executed = true
-            },function(error){
-              ws.send(error)
-            })
-*/
-      }else if(msg == "no"){
-        sub_flow_status = 0
-        ws.send("Hom many calories do you need?")       // restart from 0
+          },
+          function(error){
+            ws.send(error)
+            ws.close()
+          }
+        )
       }else{
-        ws.send("Type yes or no")
-        sub_flow_status = 1
+        //scrivere per il caso no
       }
 
-
-      break;
     default:
 
   }
 }
 
-
-function calendar_flow(msg,ws){
-
-}
 
 function twittter_flow(msg,ws){
 
@@ -412,6 +405,31 @@ function calories_meals_stringfy(meals_json){
 
   return result_string
 }
+
+//funzione di prova, da eliminare in futuro
+function dailyMealsByCalories_prova(){
+  return new Promise(
+    function(resolve,reject){
+      spoonacular_object = {
+        "breakfast":{
+          "id": 368974,
+          "title": 'Breakfast Mess'
+        },
+        "launch":{
+          "id": 368955,
+          "title": "Paula's Flyin' Fryin' UFOs"
+        },
+    		"dinner":{
+          "id": 157163,
+          "title": 'Israeli Couscous With Chicken Sausage And Over-Easy Eggs'
+        }
+      }
+
+      resolve(spoonacular_object)
+    }
+  )
+}
+
 
 module.exports = {
   main_chatbot
