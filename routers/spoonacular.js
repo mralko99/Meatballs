@@ -244,6 +244,5 @@ module.exports = {
 	mealsByIngredient_Stringify,
 	dailyMealsByCalories,
 	dailyMealsByCalories_prova,
-	prova_result,
 	recipeById
 }
