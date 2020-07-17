@@ -25,7 +25,7 @@ function mealsByIngredient(clientIngredients){//search recipes by ingredients,
 				"ignorePantry": "false",
 				"ingredients": clientIngredients
 			});
-			console.log(clientIngredients)
+			//console.log(clientIngredients)
 			req.headers({
 				"x-rapidapi-host": process.env.X_RAPIDAPI_HOST,
 				"x-rapidapi-key": process.env.X_RAPIDAPI_KEY,
@@ -35,9 +35,8 @@ function mealsByIngredient(clientIngredients){//search recipes by ingredients,
 
 			req.end(function (res) {
 				if (res.error) reject(res.error);
-				//console.log("risultato seee "+res.body);
-				resolve(res);
-				console.log(ritorno);
+				resolve(res.body);
+				//console.log(ritorno);
 
 				/*
 				for (var k = 0; k < 3; k++){
@@ -60,8 +59,8 @@ function mealsByIngredient(clientIngredients){//search recipes by ingredients,
 
 }
 
-var ingr = "apples%2Cflour%2Csugar";
-//var r1 = mealsByIngredient(ingr); //r1 è un json contenente un array di json che rappresentano le 3 opzioni (i 3 pasti)
+//var ingr = "apples%2Cflour%2Csugar";
+// mealsByIngredient(ingr); //r1 è un json contenente un array di json che rappresentano le 3 opzioni (i 3 pasti)
 
 
 
@@ -139,7 +138,7 @@ function meals_by_calories_prova(){
 
 
 
-function mealsByCalories(calories, diet, exclude){
+function dailyMealsByCalories(calories, diet, exclude){
 																				//calories è un intero (Rappresenta il numero di calorie che l'utente vuole consumare durante il giorno) e.g. 2500
 																				//diet vale "" oppure "vegetarian"
 																				//exclude è una stringa nel formato ingrediente%2Cingrediente%2Cingrediente...
@@ -193,14 +192,14 @@ function mealsByCalories(calories, diet, exclude){
 
 //get string version of meals
 function mealsByIngredient_Stringify (api_meals){//ex get_meals_string
-  console.log(api_meals.body)
+  //console.log(api_meals)
   result = ""
   for (var k = 0; k < 3; k++){
     var n = k + 1;
-    missingIngredientsNumber = api_meals.body[k].missedIngredientCount;
-    result = result + "Option " + n +") is: " + api_meals.body[k].title + "\nId is: " + api_meals.body[k].id +  "\nHere are the " + missingIngredientsNumber + " missing ingredients: ";
+    missingIngredientsNumber = api_meals[k].missedIngredientCount;
+    result = result + "Option " + n +") is: " + api_meals[k].title + "\nId is: " + api_meals[k].id +  "\nHere are the " + missingIngredientsNumber + " missing ingredients: ";
     for (var i = 0; i < missingIngredientsNumber; i++){
-      result = result + "\n" + api_meals.body[k].missedIngredients[i].name ;
+      result = result + "\n" + api_meals[k].missedIngredients[i].name ;
     }
     result = result + "\n\n"
   }
@@ -219,6 +218,6 @@ module.exports = {
 	ritorno,
 	mealsByIngredient,
 	mealsByIngredient_Stringify,
-	mealsByCalories,
+	dailyMealsByCalories,
 	recipeById
 }
