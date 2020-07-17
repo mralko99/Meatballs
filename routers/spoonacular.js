@@ -111,7 +111,7 @@ function recipeById(Id){
 }
 
 function dailyMealsByCalories_prova(){
-	prova_result = {
+	var prova_result = {
 
   	"breakfast":{
       "id": 368974,
