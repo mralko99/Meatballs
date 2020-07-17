@@ -1,12 +1,13 @@
 const mongoose = require('mongoose')
-
 const dotenv = require("dotenv").config()
+const spoonacular = require('./spoonacular.js')
 
 mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false })
 const db = mongoose.connection
 
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 var Schema = mongoose.Schema;
+
 /* Schemas definition */
 var userSchema = new Schema({
   username: {
@@ -28,7 +29,6 @@ var userSchema = new Schema({
   twitterTimeStamp: Date,
   twitterSecret: String
 })
-
 var ingredientSchema = new Schema({
   ingredient: {
     type: String,
@@ -39,7 +39,6 @@ var ingredientSchema = new Schema({
     required: true
   },
 })
-
 var mealSchema = new Schema({
   id: {
     type: String,
@@ -175,9 +174,9 @@ function associateMeal(username, id, name, recipe){
                   else resolve(res)
                 })
               })
-            } else console.log("DATABASE WARNING the meal you are trying to associate has been already associated for this user.")
+            } else console.warn("DATABASE WARNING the meal you are trying to associate has been already associated for this user.")
           },
-        function(err){ console.log("associateMeal error in the mongoDB: " + err) }
+        function(err){ console.warn("associateMeal error in the mongoDB: " + err) }
         )
       } else {
         createMeal(id, name, recipe).then(
@@ -189,7 +188,7 @@ function associateMeal(username, id, name, recipe){
               })
             })
           },
-          function(err){ console.log("associateMeal error in the mongoDB: " + err) }
+          function(err){ console.warn("associateMeal error in the mongoDB: " + err) }
         )
       }
     }
@@ -245,17 +244,6 @@ function createMeal(id, name, recipe) {
   })
 }
 
-/* è ancora necessaria? boh, lo staremo a vedere :D */
-function updateRecipe(id, recipe) {
-  update = { recipe: recipe }
-  return new Promise(function(resolve, reject) {
-    Meal.updateOne({ id: id }, update, function (err, res) {
-      if (err) reject(err)
-      else resolve(res)
-    })
-  })
-}
-
 /* Check if the meal is in the collection */
 function existMeal(id) {
   return new Promise(function(resolve, reject) {
@@ -267,12 +255,38 @@ function existMeal(id) {
   })
 }
 
-/* Return a meal given the id */
+/* Update only the recipe, return the document updated. */
+function updateRecipe(id, recipe) {
+  update = { recipe: recipe }
+  options = { new: true }
+  return new Promise(function(resolve, reject) {
+    Meal.findOneAndUpdate({ id: id }, update, options, function (err, res) {
+      if (err) reject(err)
+      else resolve(res)
+    })
+  })
+}
+
+/* Return a meal given the id. If the meal doesn't have a recipe,
+   the method will get it through spoonacular.recipeById */
 function getMealById(id) {
   return new Promise(function(resolve, reject) {
     Meal.findOne({ id: id }, function(err, res) {
       if (err) reject(err)
-      else if (res == null) resolve(null)
+      else if (res == null) {
+        console.warn("DATABASE WARNING the meal you are trying to get is not in the collection.")
+        resolve(null)
+      }
+      else if (res.recipe == null) {
+        console.warn("DATABASE WARNING the meal you are trying to get didn't have the recipe.")
+        console.warn("  The recipe will be get through a call to Spoonacular.")
+        spoonacular.recipeById(id).then(
+          function(recipe) { return updateRecipe(id, recipe) },
+          function(error){ console.warn("getMealById error in the mongoDB: " + err) }
+        ).then(
+          function(result) { resolve(result) }
+        )
+      }
       else resolve(res)
     })
   })
@@ -288,11 +302,6 @@ function getMealsByIds(id) {
   })
 }
 
-/* Usare recipeById */
-function viewRecipe(id) {
-
-}
-
 /* Find all the ids meal of a user which have the word "key" into their name. */
 async function selectRecipe(username, key) {
   result = new Array();
@@ -305,10 +314,9 @@ async function selectRecipe(username, key) {
         }
       }
       return result
-    }, function(err){ console.log("selectRecipe error in the mongoDB: " + err); }
+    }, function(err){ console.warn("selectRecipe error in the mongoDB: " + err); }
   )
 }
-
 
 module.exports = {
   createUser,
@@ -327,6 +335,5 @@ module.exports = {
   existMeal,
   getMealById,
   getMealsByIds,
-  viewRecipe,
   selectRecipe
 }
