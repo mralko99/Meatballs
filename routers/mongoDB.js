@@ -81,7 +81,6 @@ function getUserMeals(username) {
   })
 }
 
-// ATTENZIONE findUser è cambiata in getUserPassword
 /* Find a User in the collection, returns the password. */
 function getUserPassword(username) {
   return new Promise(function(resolve, reject) {
@@ -161,38 +160,82 @@ function getTwitterInfo(username) {
   If the meal does not exists in the collection, it'll be created and then associated to the user.
   Name and recipe can be null, id can't.                                                         */
 function associateMeal(username, id, name, recipe){
-  existMeal(id).then(
-    function(res) {
-      var update = {$push: {mealsId: id}}
-      if(res) {
-        lookForMeal(username, id).then(
-          function(res) {
-            if(!res) {
-              return new Promise(function(resolve, reject) {
-                User.findOneAndUpdate({ username: username }, update, function (err, res) {
-                  if (err) reject(err)
-                  else resolve(res)
+  return new Promise(function(resolve, reject) {
+    existMeal(id).then(
+      function(res) {
+        var update = {$push: {mealsId: id}}
+
+        //IF MEAL ESISTE NEL DATABASE
+        if(res) {
+          lookForMeal(username, id).then(
+            function(res_2) {
+              if(!res) {
+                User.findOneAndUpdate({ username: username }, update, function (err_3, res_3) {
+                  if (err_3)
+                    reject(err_3)
+                  else
+                    resolve(res_3)
                 })
-              })
-            } else console.warn("DATABASE WARNING the meal you are trying to associate has been already associated for this user.")
-          },
-        function(err){ console.warn("associateMeal error in the mongoDB: " + err) }
-        )
-      } else {
-        createMeal(id, name, recipe).then(
-          function(res) {
-            return new Promise(function(resolve, reject) {
-              User.findOneAndUpdate({ username: username }, update, function (err, res) {
-                if (err) reject(err)
-                else resolve(res)
-              })
-            })
-          },
-          function(err){ console.warn("associateMeal error in the mongoDB: " + err) }
-        )
+              }
+              else
+                console.warn("DATABASE WARNING the meal you are trying to associate has been already associated for this user.")
+                resolve("Already in the Database")
+            },
+            function(err_2){
+              console.warn("associateMeal error in the mongoDB: " + err_2)
+              reject(err_2)
+            }
+          )
+        }
+
+        //IF MEAL NON ESISTE NEL DATABASE
+        else {
+          createMeal(id, name, recipe).then(
+            function(res_2) {
+                User.findOneAndUpdate({ username: username }, update, function (err_3, res_3) {
+                  if (err_3)
+                    reject(err_3)
+                  else
+                    resolve(res_3)
+                })
+            },
+            function(err_2){
+              console.warn("associateMeal error in the mongoDB: " + err)
+              reject(err_2)
+            }
+          )
+        }
+      },
+      function(err){
+        console.warn("associateMeal error in the mongoDB: " + err)
+        reject(err)
       }
-    }
-  )
+    )
+  })
+}
+
+
+/* If meal is not in the collection, it'll be created with the recipe.
+   If meal is already in the collection, the name and the recipe will be updated. */
+function createMeal(id, name, recipe) {
+  mealInstance = new Meal ({
+    id: id,
+    name: name,
+    recipe: recipe
+  })
+  update = { name: name, recipe: recipe }
+  options = { upsert: true, new: true }
+  return new Promise(function(resolve, reject) {
+    Meal.findOneAndUpdate({ id: id }, update, options, function (err, res) {
+      if (err) reject(err)
+      else if (!res) {
+         mealInstance.save(function(err, res) {
+           if (err) throw err
+         })
+       }
+       resolve(res)
+    })
+  })
 }
 
 /* Given the id of a meal, returns true if
@@ -217,29 +260,6 @@ function checkIngredients(ingredient) {
        function (err, res) {
         if (err)  reject(err)
         else  resolve(res);
-    })
-  })
-}
-
-/* If meal is not in the collection, it'll be created with the recipe.
-   If meal is already in the collection, the name and the recipe will be updated. */
-function createMeal(id, name, recipe) {
-  mealInstance = new Meal ({
-    id: id,
-    name: name,
-    recipe: recipe
-  })
-  update = { name: name, recipe: recipe }
-  options = { upsert: true, new: true }
-  return new Promise(function(resolve, reject) {
-    Meal.findOneAndUpdate({ id: id }, update, options, function (err, res) {
-      if (err) reject(err)
-      else if (!res) {
-         mealInstance.save(function(err, res) {
-           if (err) throw err
-         })
-       }
-       resolve(res)
     })
   })
 }
@@ -308,8 +328,11 @@ async function selectRecipe(username, key) {
   return getMealsByIds(await getUserMeals(username)).then(
     function(res){
       for(i = 0, j = 0; i < res.length; i++){
-        if(res[i].recipe.includes(key)) {
-          result[j] = res[i].id
+        if(res[i].name.includes(key)) {
+          result[j] = {
+            "id":res[i].id,
+            "name":res[i].name
+          }
           j++
         }
       }
@@ -330,7 +353,6 @@ module.exports = {
   associateMeal,
   lookForMeal,
   checkIngredients,
-  createMeal,
   updateRecipe,
   existMeal,
   getMealById,

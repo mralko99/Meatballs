@@ -1,8 +1,10 @@
 const mongoDB = require("./mongoDB.js")
 const spoonacular = require('./spoonacular.js');
 const calendar = require('./calendar.js');
+
 express = require("express")
 enablews = require("express-ws")
+session = require('express-session')
 
 auth_status = 0
 main_status = 0
@@ -14,7 +16,7 @@ excluded_ingredients = ""
 recipe_ID = ""
 calories_meals_json = {}
 
-function main_chatbot(ws){
+function main_chatbot(ws,session){
   ws.send('Inserisci username')
 
   ws.on("message",msg =>{
@@ -108,34 +110,46 @@ function main_chatbot(ws){
       }
 
       //Close the chat
-      if(msg == "exit"){
+      else if(msg == "exit"){
         ws.close()
       }
 
       //Redirect user to main menu
-      if(msg == "menu"){
+      else if(msg == "menu"){
         main_status = 0
         ws.send("Sei tornato al menu principale")
       }
 
-      switch (main_status) {
-        //Main Page
-        case 0:
-          chat_flow_router(msg,ws)
-          break;
+      else {
+        switch (main_status) {
+          //Main Page
+          case 0:
+            chat_flow_router(msg,ws)
+            break;
 
-        //Spoonacular Page
-        case 1:
-          meals_flow(msg,ws)
-          break;
+          //Spoonacular Page
+          case 1:
+            meals_flow(msg,ws)
+            break;
 
-        //Template
-        case 2:
-          meals_planner(msg,ws)
-          break;
+          //Template
+          case 2:
+            meals_planner(msg,ws)
+            break;
 
-        default:
-          ws.close()
+          //Select Meal
+          case 3:
+            select_meal(msg,ws)
+            break;
+
+          //Twitter
+          case 4:
+            twitter_flow(msg,ws)
+            break;
+
+          default:
+            ws.close()
+        }
       }
     }
   })
@@ -161,8 +175,17 @@ function chat_flow_router (msg, ws){
       main_status = 2
       break;
 
+    case "select meal":
+      ws.send("Hom many calories do you need?")
+      main_status = 2
+      break;
+
+    case "post twitter":
+      ws.send("Hom many calories do you need?")
+      main_status = 2
+      break;
+
     default:
-      if (msg!="help"&&msg!="exit"&&msg!="menu")
       ws.send("I don't know what you mean")
       main_status = 0
       return
@@ -175,8 +198,6 @@ function meals_flow(msg,ws){
   switch (sub_flow_status) {
 
     case 0:
-      ingredients_3_meals = ""
-
       if(msg == "reset"){
         sub_flow_status = 0
         main_status = 0
@@ -185,23 +206,28 @@ function meals_flow(msg,ws){
       }
 
       else if(msg == "finish"){
-          console.log("User ended the ingredients")
-          var promise_meals_by_ingredients = spoonacular.mealsByIngredient(ingredients_3_meals)
-          promise_meals_by_ingredients.then(
-            function(result){
-              meals_json = result
-              //console.log(meals_json)
-              answer = get_meals_string(meals_json)
-              ws.send("choose youre recipe, type 1 or 2 or 3")
-              ws.send(answer)
-              sub_flow_status = 1
-              return
+          if (ingredients_3_meals != ""){
+            console.log("User ended the ingredients")
+            var promise_meals_by_ingredients = spoonacular.mealsByIngredient(ingredients_3_meals)
+            promise_meals_by_ingredients.then(
+              function(result){
+                meals_json = result
+                //console.log(meals_json)
+                answer = get_meals_string(meals_json)
+                ws.send("choose youre recipe, type 1 or 2 or 3")
+                ws.send(answer)
+                sub_flow_status = 1
+                return
 
-            },
-            function(reject){
-              ws.send("ERROR: "+reject)
-              ws.close()
-            })
+              },
+              function(reject){
+                ws.send("ERROR: "+reject)
+                ws.close()
+              })
+          }
+          else {
+            ws.send("Insert at least one ingredients")
+          }
       }
 
       else{
@@ -238,25 +264,27 @@ function meals_flow(msg,ws){
         ws.send("This is not a valid number, type again or 'exit' or 'menu'")
         return 1
       }
-      console.log("case 1 enter")
       recipe_ID = meals_json["body"][parseInt(msg) - 1]["id"]
       recipeById_promise = spoonacular.recipeById(recipe_ID)
-      recipeById_promise.then(function(result){
+      recipeById_promise.then(
+        function(result){
           ws.send("This is your recipe, have a good meals!")
           ws.send(result)
-          ws.send("Se compare il messaggio, ha funzionato, quindi hai un ricetta speciale")
-          ws.send("Cazzi ai cereali")
+
+          //AGGIUNGI IL PASTO AL DATABASE
+
           //reset variables
           ingredients_3_meals = ""
           meals_json = ""
-
           sub_flow_status = 0
           main_status = 0
           ws.send("Sei tornato al menu principale")
           return
-      },function(reject){
+        },
+        function(reject){
         ws.close()
-      })
+        }
+      )
 
       break;
 
@@ -291,7 +319,8 @@ function meals_planner(msg,ws){
       break;
 
     case 1:
-      console.log("meals_planner, status----> 1")
+      console.log("meals_planner, st
+  console.log("ATTENZIONE IMPORTANTE!!!!"+JSON.stringify(req.query))atus----> 1")
       if(msg == "yes"){
         //###breakfast###
         console.log("Breakfast")
@@ -301,7 +330,7 @@ function meals_planner(msg,ws){
         }
         date.setHours(8)
         ws.send("Breakfast at "+date)
-        mongoDB.createMeal(calories_meals_json.breakfast.id, calories_meals_json.breakfast.title,null).then(
+        mongoDB.associateMeal(user,calories_meals_json.breakfast.id, calories_meals_json.breakfast.title,null).then(
           function(result){
             return calendar.createEvent(user,"devi mangiare",calories_meals_json.breakfast.title+"\nID= "+calories_meals_json.breakfast.id, date)
           },
@@ -313,7 +342,7 @@ function meals_planner(msg,ws){
         ).then(
           function(result_2){
             ws.send("Breakfast OK!! ")
-            return mongoDB.createMeal(calories_meals_json.launch.id, calories_meals_json.launch.title,null)
+            return mongoDB.associateMeal(user,calories_meals_json.launch.id, calories_meals_json.launch.title,null)
           },
           function(error_2){
             ws.send(error_2)
@@ -337,7 +366,7 @@ function meals_planner(msg,ws){
         ).then(
           function(result_4){
             ws.send("Launch OK!!")
-            return mongoDB.createMeal(calories_meals_json.dinner.id, calories_meals_json.dinner.title,null)
+            return mongoDB.associateMeal(user,calories_meals_json.dinner.id, calories_meals_json.dinner.title,null)
           },
           function(error_4){
             ws.send(error_2)
@@ -362,6 +391,9 @@ function meals_planner(msg,ws){
           function(result_6){
             ws.send("Dinner OK!!")
             ws.send("All meals saved!!!")
+            sub_flow_status = 0
+            main_status = 0
+            ws.send("Sei tornato al menu principale")
           },
           function(error_6){
             ws.send(error_6)
@@ -377,8 +409,11 @@ function meals_planner(msg,ws){
   }
 }
 
+function select_meal(msg,ws){
 
-function twittter_flow(msg,ws){
+}
+
+function twitter_flow(msg,ws){
 
 }
 
