@@ -2,6 +2,7 @@
 
 Meatballs is a web application born with the intent to **satiate** food-related needs of our clients, keeping an eye on the ambient and on the wallet, the whole with the ultimate goal to provide a healthy and tasty diet.
 What Meatballs consists of is a user friendly chatbot who will supply many options for your diet, eventually taking into account food intolerances, ingredients you already possess and don't want to waste and many others features.
+- [ ] add link to architecture schema
 
 ## Technologies Used
 
@@ -94,7 +95,7 @@ Give an example
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
 
 ## Acknowledgments
 
