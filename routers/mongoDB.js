@@ -34,10 +34,7 @@ var ingredientSchema = new Schema({
     type: String,
     required: true
   },
-  ingredientId: {
-    type: String,
-    required: true
-  },
+  ingredientId: String
 })
 var mealSchema = new Schema({
   id: {
@@ -256,9 +253,10 @@ function lookForMeal(username, id){
 /* Validation of the ingredient for the chatbot. */
 function checkIngredients(ingredient) {
   return new Promise(function(resolve, reject) {
-    Ingredient.findOne({ ingredient: ingredient }, { ingredient: 1 },
+    Ingredient.exists({ ingredient: ingredient },
        function (err, res) {
-        if (err)  reject(err)
+        if (err)
+          reject(err)
         else  resolve(res);
     })
   })
