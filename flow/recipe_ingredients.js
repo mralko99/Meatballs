@@ -23,16 +23,13 @@ function recipe_ingredients(ws,msg,session){
       break;
 
     case 1:
-
       if(msg == "finish"){
         if (ingredients_3_meals != ""){
-          console.log("User ended the ingredients")
           session.spoonacular.mealsByIngredient(ingredients_3_meals).then(
             function(result){
               meals_json = result
-              answer = session.spoonacular.mealsByIngredient_Stringify(meals_json)
-              ws.send("choose youre recipe, type 1 or 2 or 3")
-              ws.send(answer)
+              ws.send("Choose your recipe, type 1 or 2 or 3 to select the recipe")
+              ws.send(session.spoonacular.mealsByIngredient_Stringify(meals_json))
               session.sub_flow_status = 2
               return
 
@@ -48,8 +45,7 @@ function recipe_ingredients(ws,msg,session){
       }
 
       else{
-        var Ingredient_Promise =  session.mongoDB.checkIngredients(msg)
-        Ingredient_Promise.then(
+        session.mongoDB.checkIngredients(msg).then(
           function(res) {
             if(!res){
               ws.send("L'ingrediente non è valido")
@@ -59,7 +55,7 @@ function recipe_ingredients(ws,msg,session){
                 ingredients_3_meals = msg
               }
               else{
-                ingredients_3_meals = ingredients_3_meals+ "2%C" +msg
+                ingredients_3_meals = ingredients_3_meals+ "%2C" +msg
               }
             }
           },
@@ -70,42 +66,42 @@ function recipe_ingredients(ws,msg,session){
         )
         return
       }
-
       break;
 
     case 2:
       if(isNaN(msg) && parseInt(msg) > 3 && parseInt(msg) < 1){
         ws.send("This is not a valid number, type again or 'exit' or 'menu'")
-        return 1
       }
-      recipe_ID = meals_json[parseInt(msg) - 1]["id"]
-      recipeById_promise = session.spoonacular.recipeById(recipe_ID)
-      recipeById_promise.then(
-        function(recipe){
-          ws.send("This is your recipe, have a good meals!")
-          session.mongoDB.associateMeal(user, meals_json[parseInt(msg) - 1]["id"], meals_json[parseInt(msg) - 1]["title"], recipe).then(
-            function(result){
-              //non so che mettere
-            },
-            function(error){
-              ws.send("ERROR:"+error)
-              ws.close()
-            }
-          )
-          session.sub_flow_status = 0
-          session.main_status = 1
-          ws.send("Sei tornato al menu principale")
-          return
-        },
-        function(reject){
-          ws.close()
-        }
-      )
-
+      else{
+        session.recipe_ID = meals_json[parseInt(msg) - 1]["id"]
+        session.spoonacular.recipeById(session.recipe_ID).then(
+          function(recipe){
+            ws.send("This is your recipe, have a good meals!")
+            session.mongoDB.associateMeal(
+              session.user,
+              meals_json[parseInt(msg) - 1]["id"],
+              meals_json[parseInt(msg) - 1]["title"],
+              recipe
+            ).then(
+              function(result){
+                session.sub_flow_status = 0
+                session.main_status = 1
+                ws.send("Sei tornato al menu principale")
+              },
+              function(error){
+                ws.send("ERROR:"+error)
+                ws.close()
+              }
+            )
+          },
+          function(reject){
+            ws.close()
+          }
+        )
+      }
       break;
 
     default:
-
   }
 }
 

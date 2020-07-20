@@ -1,17 +1,22 @@
 function view_recipe(ws,msg,session){
 
-  switch (session.sub_flow_status) {
-    case 0:
-      break;
-
-    case 1:
-      break;
-
-    case 2:
-      break;
-
-    default:
-
+  if(session.recipe_ID == ""){
+    ws.send("No meal selected!!")
+  }
+  else{
+    session.mongoDB.getMealById(session.recipe_ID).then(
+      function(result){
+        //IMPLEMENTARE SE LA RECIPE E'VUOTA FARE LA QUERY CON SPOONACULAR
+        console.log(result)
+        ws.send("The recipe for: "+result.title)
+        ws.send(result.recipe)
+        session.main_status = 1
+      },
+      function(error){
+        ws.send("ERROR"+error)
+        ws.close()
+      }
+    )
   }
 }
 

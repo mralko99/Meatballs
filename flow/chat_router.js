@@ -1,9 +1,10 @@
+view_recipe =require("./view_recipe");
+
 function chat_router(ws,msg,session){
   switch (msg) {
     case "recipe ingredients":
       ws.send("Type your ingredients, end with 'finish'")
       session.main_status = 2
-      return
       break;
 
     case "meals planner":
@@ -22,8 +23,7 @@ function chat_router(ws,msg,session){
       break;
 
     case "view recipe":
-      session.main_status = 6
-      return
+      view_recipe.view_recipe(ws,msg,session)
       break;
 
     default:
