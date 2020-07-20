@@ -11,7 +11,7 @@ function recipe_calories(ws,msg,session){
             calories_meals_json = result
             console.log(result)
             ws.send("Here is your recipe")
-            ws.send(calories_meals_stringfy(result))      //funzione per trasformare i JSON in stringa
+            ws.send(session.spoonacular.mealsPlanningStringify(result))      //funzione per trasformare i JSON in stringa
             ws.send("type yes to accept or no to obtain new recipes")
             session.sub_flow_status = 1
           },
@@ -33,9 +33,9 @@ function recipe_calories(ws,msg,session){
         }
         date.setHours(8)
         ws.send("Breakfast at "+date)
-        session.mongoDB.associateMeal(user,calories_meals_json.breakfast.id, calories_meals_json.breakfast.title,null).then(
+        session.mongoDB.associateMeal(session.user,calories_meals_json.breakfast.id, calories_meals_json.breakfast.title,null).then(
           function(result){
-            return session.calendar.createEvent(user,"devi mangiare",calories_meals_json.breakfast.title+"\nID= "+calories_meals_json.breakfast.id, date)
+            return session.calendar.createEvent(session.user,"devi mangiare",calories_meals_json.breakfast.title+"\nID= "+calories_meals_json.breakfast.id, date)
           },
           function(error){
             console.log(error)
@@ -103,8 +103,11 @@ function recipe_calories(ws,msg,session){
             ws.close()
           }
         )
+      }else if (msg == "no"){
+        session.sub_flow_status = 0
+        ws.send("Type again your calories")
       }else{
-        //scrivere per il caso no
+        ws.send("Please type yes or no")
       }
       break;
 
@@ -113,6 +116,28 @@ function recipe_calories(ws,msg,session){
   }
 }
 
+function dailyMealsByCalories_prova(){
+  return new Promise(
+    function(resolve,reject){
+      spoonacular_object = {
+        "breakfast":{
+          "id": 368974,
+          "title": 'Breakfast Mess'
+        },
+        "launch":{
+          "id": 368955,
+          "title": "Iraq Lobster"
+        },
+    		"dinner":{
+          "id": 157163,
+          "title": 'Israeli Couscous With Chicken Sausage And Over-Easy Eggs'
+        }
+      }
+
+      resolve(spoonacular_object)
+    }
+  )
+}
 module.exports = {
   recipe_calories
 }

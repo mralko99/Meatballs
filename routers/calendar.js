@@ -139,7 +139,7 @@ function createEvent(user, title, description, startDateTimeString){  //datetime
               endDateTime.setMinutes(endDateTime.getMinutes() + 60)
               startDateTime.setMinutes(0)
               endDateTime.setMinutes(0)
-              
+
               body = {
                 "summary":title,
                 "description":description,
@@ -150,7 +150,7 @@ function createEvent(user, title, description, startDateTimeString){  //datetime
                   "dateTime":endDateTime
                 }
               }
-              console.log("[Create event] Request for a new event, request body: \n"+JSON.stringify(body)+"\n"+"url "+url)
+              console.log("[Create event] Request for a new event, request body: \n"+JSON.stringify(body)+"\n"+"url "+url+"\nheaders "+JSON.stringify(headers))
 
               request.post({ url:url, headers:headers, body:body, "json":true},
                 function(error,res,body){
@@ -158,7 +158,7 @@ function createEvent(user, title, description, startDateTimeString){  //datetime
                   if(error){
                     reject(error)
                   }
-                  console.log("[Create event]"+body)
+                  console.log("[Create event]"+JSON.stringify(body))
                   resolve("Success")
                 }
               )

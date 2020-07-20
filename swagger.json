@@ -1,0 +1,111 @@
+{
+  "swagger" : "2.0",
+  "info" : {
+    "description" : "API esterne per MeatBALLS",
+    "version" : "1.0.0",
+    "title" : "MeatBALLS API",
+    "license" : {  //modificare licenza!!
+      "name" : "Apache 2.0",
+      "url" : "http://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "host" : "localhost:5000",
+  //"basePath" : "/",
+  "schemes" : [ "http" ],
+  "paths" : {
+    "/apimeatballs/recipeslist/{sub_name}" : {
+      "get" : {
+        "summary" : "returns a recipe including the parameter 'sub_name'in the meal name",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "sub_name",
+          "in" : "path",
+          "description" : "sub name of recipe",
+          "required" : true,
+          "type" : "string"
+        },{
+          "name" : "calories",
+          "in" : "query",
+          "descritpiton" : "max number of calories",
+          "required" : true,
+          "type" : "int"
+        },{
+          "name" : "exculded_ingredients",
+          "in" : "query",
+          "descritpiton" : "ingredeints to exlude, e.g. for intollerances, preferences etc..",
+          "required" : false,
+          "type" : "string, value separated by '2%C' or ' '"
+        } ],
+        "responses" : {
+          "200" : {
+            "description": "No error, success!!!",
+            "schema": {
+              "type": "JSON od recipe and meal"
+            }
+          },
+          "400" : {
+            "description" : "Not valid ingredient"
+          }
+        }
+      }
+    },
+    "/apimeatballs/nutritionalvalues" : {
+      //use
+Visualize Product Nutrition + chiamata DB per ID
+      "get" : {
+        "summary" : "takes a product and return nutritional values ",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "ingredient",
+          "in" : "query",
+          "description" : "view nutritiona values of this ingredient",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description": "No error, success",
+            "schema": {
+              "type": "JSON"
+            }
+          },
+          "400" : {
+            "description" : "Not valid ingredient"
+          }
+        }
+      }
+    },
+    "/apimeatballs/shoppinglist" : {                                             //use Search Grocery Products
+      "get" : {
+        "summary" : "Return a series of produtcs with you can by in a grocery store",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "max_calories",
+          "in" : "query",
+          "description" : "max amount of calories",
+          "required" : false,
+          "type" : "int"
+        },
+        {
+          "name" : "max_fat",
+          "in" : "query",
+          "description" : "max amount of fat",
+          "required" : false,
+          "type" : "int"
+          }],
+        "responses" : {
+          "200" : {
+            "description": "No error, success",
+            "schema": {
+              "type": "JSON"
+            }
+          },
+          "400" : {
+            "description" : "Bad Request"
+          }
+        }
+      }
+    }
+  },
+  "definitions" : { }
+}
