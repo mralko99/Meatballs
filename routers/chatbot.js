@@ -147,6 +147,10 @@ function main_chatbot(ws,session){
             twitter_flow(msg,ws)
             break;
 
+          case 5:
+            viewRecie(msg,ws)
+            break;
+
           default:
             ws.close()
         }
@@ -185,6 +189,11 @@ function chat_flow_router (msg, ws){
       main_status = 2
       break;
 
+    case "view recipe":
+      main_status = 5
+      return
+      break;
+
     default:
       ws.send("I don't know what you mean")
       main_status = 0
@@ -212,7 +221,6 @@ function meals_flow(msg,ws){
             promise_meals_by_ingredients.then(
               function(result){
                 meals_json = result
-                //console.log(meals_json)
                 answer = get_meals_string(meals_json)
                 ws.send("choose youre recipe, type 1 or 2 or 3")
                 ws.send(answer)
@@ -264,15 +272,20 @@ function meals_flow(msg,ws){
         ws.send("This is not a valid number, type again or 'exit' or 'menu'")
         return 1
       }
-      recipe_ID = meals_json["body"][parseInt(msg) - 1]["id"]
+      recipe_ID = meals_json[parseInt(msg) - 1]["id"]
       recipeById_promise = spoonacular.recipeById(recipe_ID)
       recipeById_promise.then(
-        function(result){
+        function(recipe){
           ws.send("This is your recipe, have a good meals!")
-          ws.send(result)
-
-          //AGGIUNGI IL PASTO AL DATABASE
-
+          mongoDB.associateMeal(user, meals_json[parseInt(msg) - 1]["id"], meals_json[parseInt(msg) - 1]["title"], recipe).then(
+            function(result){
+              //non so che mettere
+            },
+            function(error){
+              ws.send("ERROR:"+error)
+              ws.close()
+            }
+          )
           //reset variables
           ingredients_3_meals = ""
           meals_json = ""
@@ -409,6 +422,23 @@ function meals_planner(msg,ws){
   }
 }
 
+function viewRecie(msg,ws){
+  if(recipe_ID == ""){
+    ws.send("No meal selected!!")
+  }
+  else{
+    mongoDB.getMealById(recipe_ID).then(
+      function(recipe){
+        ws.send(recipe)
+      },
+      function(error){
+        ws.send("ERROR"+error)
+        ws.close()
+      }
+    )
+  }
+}
+
 function select_meal(msg,ws){
 
 }
@@ -420,14 +450,14 @@ function twitter_flow(msg,ws){
 
 //get string version of meals
 function get_meals_string (api_meals){
-  console.log(api_meals.body)
+  console.log(api_meals)
   result = ""
   for (var k = 0; k < 3; k++){
     var n = k + 1;
-    missingIngredientsNumber = api_meals.body[k].missedIngredientCount;
-    result = result + "Option " + n +") is: " + api_meals.body[k].title + "\nId is: " + api_meals.body[k].id +  "\nHere are the " + missingIngredientsNumber + " missing ingredients: ";
+    missingIngredientsNumber = api_meals[k].missedIngredientCount;
+    result = result + "Option " + n +") is: " + api_meals[k].title + "\nId is: " + api_meals[k].id +  "\nHere are the " + missingIngredientsNumber + " missing ingredients: ";
     for (var i = 0; i < missingIngredientsNumber; i++){
-      result = result + "\n" + api_meals.body[k].missedIngredients[i].name ;
+      result = result + "\n" + api_meals[k].missedIngredients[i].name ;
     }
     result = result + "\n\n"
   }
