@@ -8,12 +8,24 @@ function chat_router(ws,msg,session){
       break;
 
     case "meals planner":
-      ws.send("Hom many calories do you need?")
+      ws.send("How many calories do you need?")
       session.main_status = 3
       break;
 
     case "select meal":
-      ws.send("Hom many calories do you need?")
+      ws.send("Search for a keyword or type a number to select the recipe")
+      session.mongoDB.selectRecipe(session.user,"").then(
+        function(res){
+          session.result=res
+          for(i = 0; i < res.length; i++){
+            ws.send(i+") "+res[i].name)
+          }
+        },
+        function(err){
+          ws.send(err)
+          ws.close()
+        }
+      )
       session.main_status = 4
       break;
 

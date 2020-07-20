@@ -29,5 +29,5 @@ app.get('/sessions/callback', function(req, res){
 });
 
 app.listen(8080, function() {
-  console.log('App runining on port 8080!');
+  console.log('App running on port 8080!');
 });

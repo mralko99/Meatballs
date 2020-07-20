@@ -326,7 +326,7 @@ async function selectRecipe(username, key) {
   return getMealsByIds(await getUserMeals(username)).then(
     function(res){
       for(i = 0, j = 0; i < res.length; i++){
-        if(res[i].name.includes(key)) {
+        if(res[i].name.toUpperCase().includes(key.toUpperCase())) {
           result[j] = {
             "id":res[i].id,
             "name":res[i].name
