@@ -18,6 +18,7 @@ function test1(productType, maxCalories, exclude, include) {
         if(error) reject(error)
         else resolve(body)
     })
+  })
 }
 
 // API 2
@@ -34,6 +35,7 @@ function test2(ingredient) {
         if(error) reject(error)
         else resolve(body)
     })
+  })
 }
 
 // API 3
@@ -52,6 +54,7 @@ function test3(productType, maxCalories, maxFat) {
         if(error) reject(error)
         else resolve(body)
     })
+  })
 }
 
 

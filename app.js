@@ -128,7 +128,8 @@ app.get("/calendar/callback", function(req,res){
 
 //###################### External API##################################
 
-// API 1
+/* Given a type of meal (e.g. pasta, hamburger, sandwich...), the maximum calories you want to eat, an array of ingredients
+   you want to include and exclude, it returns a possible recipe. */
 app.get("/apimeatballs/getrecipe/:sub_name",
   function(req,res){
     sub_name = req.params.sub_name
@@ -164,7 +165,7 @@ app.get("/apimeatballs/getrecipe/:sub_name",
   }
 )
 
-//API 2
+/* Given a single ingredient, it returns all the nutritional values. */
 app.get("/apimeatballs/nutritionalvalues",
   function(req,res){
     ingredient = req.query.ingredient
@@ -198,7 +199,7 @@ app.get("/apimeatballs/nutritionalvalues",
   }
 )
 
-//API 3
+/* Given the maximum calories and the maximum fat you want to eat, it returns a lists of product you can buy in a supermarket. */
 app.get("/apimeatballs/shoppinglist/:product_type",
   function(req,res){
     product_type = req.query.params
