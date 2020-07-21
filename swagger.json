@@ -4,7 +4,7 @@
     "description" : "API esterne per MeatBALLS",
     "version" : "1.0.0",
     "title" : "MeatBALLS API",
-    "license" : {  
+    "license" : {
       "name" : "MIT",
       "url" : "https://opensource.org/licenses/MIT"
     }
@@ -27,7 +27,7 @@
           "name" : "max_calories",
           "in" : "query",
           "descritpiton" : "max number of calories",
-          "required" : false,
+          "required" : true,
           "type" : "int"
         },{
           "name" : "exculded_ingredients",
@@ -40,7 +40,7 @@
           "200" : {
             "description": "No error, success!!!",
             "schema": {
-              "type": "JSON"
+              "type": "json"
             }
           },
           "400" : {
@@ -67,7 +67,7 @@
           "200" : {
             "description": "No error, success",
             "schema": {
-              "type": "JSON"
+              "type": "json"
             }
           },
           "400" : {
@@ -87,7 +87,7 @@
           "name" : "max_calories",
           "in" : "query",
           "description" : "max amount of calories",
-          "required" : false,
+          "required" : true,
           "type" : "int"
         },
         {
@@ -101,7 +101,7 @@
           "200" : {
             "description": "No error, success",
             "schema": {
-              "type": "String"
+              "type": "string"
             }
           },
           "400" : {
