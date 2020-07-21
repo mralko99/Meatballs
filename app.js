@@ -4,8 +4,8 @@ dotenv = require("dotenv").config();
 oauth = require('oauth');
 session = require('express-session');
 unirest = require("unirest");
-const swaggerUI= require('swagger-ui-express');
-const swaggerDocument= require('./swagger.json');
+swaggerUI= require('swagger-ui-express');
+swaggerDocument= require('./swagger.json');
 
 session.calendar = require("./routers/calendar");
 session.twitter = require("./routers/twitter");
