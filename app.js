@@ -26,7 +26,7 @@ app.ws("/chatbot", (ws,req)=> {
 
   ws.send('Inserisci username')
 
-  session.main_status=3 // test
+  session.main_status=0 // test
   session.sub_flow_status=0
 
   session.recipe_ID=""

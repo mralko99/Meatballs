@@ -1,5 +1,5 @@
 function recipe_calories(ws,msg,session){
-  session.user = "ale2"
+  //session.user = "ale2"
   switch (session.sub_flow_status) {
     case 0:
       console.log("meals_planner, status----> 0")
