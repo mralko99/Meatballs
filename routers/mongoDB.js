@@ -339,6 +339,17 @@ async function selectRecipe(username, key) {
   )
 }
 
+/* Given an ingredient name, return the id of the ingredient */
+function getIngredientbyName(ingredient) {
+  return new Promise(function(resolve, reject) {
+    Ingredient.findOne( {ingredient: ingredient}, { ingredient: 1, ingredientId: 1 },
+      function(err, res) {
+      if (err) reject(err)
+      else resolve(res.ingredientId)
+    })
+  })
+}
+
 module.exports = {
   createUser,
   getUserMeals,
