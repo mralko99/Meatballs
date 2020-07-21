@@ -46,7 +46,7 @@ It's possible to obtain a copy of the project by cloning the repository on Githu
 
 ### Prerequisites
 
-The Node.js modules you have to install in order to get the application working are
+The Node.js modules you have to install in the project folder in order to get the application working are:
 
 ```
 npm install express
@@ -61,13 +61,9 @@ npm install events
 npm install mongoose
 npm install twitter
 ```
-The modules need to be installed in the folder of the project.
 
-
-### Installing
-
-The module dotenv allows you to loads environment variables in a file called .env. The file .env contains all the sensitive data or credential you don't want to share with everyone.
-
+The module dotenv, installed before through npm install dotenv, allows you to loads environment variables in a file called .env. The file .env contains all the sensitive data or credential you don't want to share with everyone.
+Our .env file contains the following data:
 ```
 CONSUMER_KEY
 CONSUMER_SECRET
@@ -78,9 +74,6 @@ MONGODB_URI
 X_RAPIDAPI_HOST
 X_RAPIDAPI_KEY
 ```
-
-
-- [ ] *End with an example of getting some data out of the system or using it for a little demo*
 
 ## Running the tests
 
