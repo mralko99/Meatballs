@@ -137,8 +137,11 @@ app.get("/apimeatballs/getrecipe/:sub_name",
     sub_name = req.params.sub_name
     max_calories = req.query.max_calories
     exculded_ingredients = req.query.exculded_ingredients
+    excluded_ingredients_array = excluded_ingredients.split("-")
+
+
 
 
   }
-
+)
 app.listen(5000)
