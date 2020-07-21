@@ -42,33 +42,43 @@ What Meatballs consists of is a user friendly chatbot who will supply many optio
 
 
 ## Getting Started
-
-- [ ] add *instructions which will get you a copy of the project up and running on your local machine for development and testing purposes*
+It's possible to obtain a copy of the project by cloning the repository on Github.  
 
 ### Prerequisites
 
-- [ ] add *What things you need to install the software and how to install them*
+The Node.js modules you have to install in order to get the application working are
 
 ```
 npm install express
-- [ ]
+npm install express-ws
+npm install dotenv
+npm install oauth
+npm install express-session
+npm install unirest
+npm install request
+npm install opener
+npm install events
+npm install mongoose
+npm install twitter
 ```
+The modules need to be installed in the folder of the project.
+
 
 ### Installing
 
-- [ ] add *A step by step series of examples that tell you how to get a development env running*
-
-*Say what the step will be*
+The module dotenv allows you to loads environment variables in a file called .env. The file .env contains all the sensitive data or credential you don't want to share with everyone.
 
 ```
-Give the example
+CONSUMER_KEY
+CONSUMER_SECRET
+GOOGLE_API_KEY
+GOOGLE_CLIENT_ID
+GOOGLE_CLIENT_SECRET
+MONGODB_URI
+X_RAPIDAPI_HOST
+X_RAPIDAPI_KEY
 ```
 
-*repeat*
-
-```
-until finished
-```
 
 - [ ] *End with an example of getting some data out of the system or using it for a little demo*
 
