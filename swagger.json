@@ -34,7 +34,7 @@
           "in" : "query",
           "descritpiton" : "ingredeints to exlude, e.g. for intollerances, preferences etc..",
           "required" : false,
-          "type" : "string, value separated by '2%C' or ' '"
+          "type" : "string, value separated by '%2C' or ' '"
         } ],
         "responses" : {
           "200" : {
@@ -58,7 +58,7 @@ Visualize Product Nutrition + chiamata DB per ID
         "parameters" : [ {
           "name" : "ingredient",
           "in" : "query",
-          "description" : "view nutritiona values of this ingredient",
+          "description" : "view nutritional values of this ingredient",
           "required" : true,
           "type" : "string"
         } ],

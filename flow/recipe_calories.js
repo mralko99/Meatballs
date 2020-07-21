@@ -1,5 +1,5 @@
 function recipe_calories(ws,msg,session){
-
+  session.user = "ale2"
   switch (session.sub_flow_status) {
     case 0:
       console.log("meals_planner, status----> 0")
@@ -11,7 +11,7 @@ function recipe_calories(ws,msg,session){
             calories_meals_json = result
             console.log(result)
             ws.send("Here is your recipe")
-            ws.send(session.spoonacular.mealsPlanningStringify(result))      //funzione per trasformare i JSON in stringa
+            ws.send(session.spoonacular.mealsPlanning_Stringify(result))      //funzione per trasformare i JSON in stringa
             ws.send("type yes to accept or no to obtain new recipes")
             session.sub_flow_status = 1
           },
@@ -45,7 +45,7 @@ function recipe_calories(ws,msg,session){
         ).then(
           function(result_2){
             ws.send("Breakfast OK!! ")
-            return session.mongoDB.associateMeal(user,calories_meals_json.launch.id, calories_meals_json.launch.title,null)
+            return session.mongoDB.associateMeal(session.user,calories_meals_json.launch.id, calories_meals_json.launch.title,null)
           },
           function(error_2){
             ws.send(error_2)
@@ -60,7 +60,7 @@ function recipe_calories(ws,msg,session){
             }
             date.setHours(13)
             ws.send("Launch at "+date)
-            return session.calendar.createEvent(user,"devi mangiare",calories_meals_json.launch.title+"\nID= "+calories_meals_json.launch.id, date)
+            return session.calendar.createEvent(session.user,"devi mangiare",calories_meals_json.launch.title+"\nID= "+calories_meals_json.launch.id, date)
           },
           function(error_3){
             ws.send(error_2)
@@ -69,7 +69,7 @@ function recipe_calories(ws,msg,session){
         ).then(
           function(result_4){
             ws.send("Launch OK!!")
-            return session.mongoDB.associateMeal(user,calories_meals_json.dinner.id, calories_meals_json.dinner.title,null)
+            return session.mongoDB.associateMeal(session.user,calories_meals_json.dinner.id, calories_meals_json.dinner.title,null)
           },
           function(error_4){
             ws.send(error_2)
@@ -84,7 +84,7 @@ function recipe_calories(ws,msg,session){
             }
             date.setHours(20)
             ws.send("Dinner at "+date)
-            return session.calendar.createEvent(user,"devi mangiare",calories_meals_json.dinner.title+"\nID= "+calories_meals_json.dinner.id, date)
+            return session.calendar.createEvent(session.user,"devi mangiare",calories_meals_json.dinner.title+"\nID= "+calories_meals_json.dinner.id, date)
           },
           function(error_5){
             ws.send(error_2)
