@@ -1,6 +1,4 @@
 function select_meal(ws,msg,session){
-  //session.user="Alberto"
-  //session.first_run=true
   if (isNaN(msg)||msg==" "){
     session.mongoDB.selectRecipe(session.user,msg).then(
       function(res){
