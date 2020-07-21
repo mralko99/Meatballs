@@ -171,7 +171,7 @@ app.get("/apimeatballs/nutritionalvalues",
     if(!isNaN(ingredient)){
       ws.status(400)
     }
-    session.mongoDB.getIngredientbyName(ingredinet).then(
+    session.mongoDB.getIngredientbyName(ingredient).then(
       function(result){
         ingredientId = result
         if(ingredientId == null){
