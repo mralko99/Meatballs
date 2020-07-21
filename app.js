@@ -38,16 +38,15 @@ app.ws("/chatbot", (ws,req)=> {
   ws.on("message",msg =>{
     if (session.main_status>=1&&(msg == "help"||msg == "exit"||msg == "menu")){
       if(msg == "help"){
-        ws.send("Current status:"+session.main_status+" & sub_status:"+session.sub_flow_status)
         ws.send("exit - quit from the chat")
         if (session.main_status!=1){
           ws.send("menu - go back to main menu")
         }
         if (session.main_status==1){
-          ws.send("recipe ingredients - start the flow to find a meal")
-          ws.send("meal planner - start the flow to find start a diet with calendar")
-          ws.send("select meal - search from previously viewed meal to select them")
-          ws.send("post twitter - start the flow to find a meal")
+          ws.send("recipe ingredients - find a meal given some ingredients")
+          ws.send("meal planner - find a daily diet and save it in the calendar")
+          ws.send("select meal - select a meal from the ones associated to your user")
+          ws.send("post twitter - post the name of the selected meal")
           ws.send("view recipe - view the recipe of the selected meal")
         }
       }

@@ -85,7 +85,7 @@ function recipe_ingredients(ws,msg,session){
               function(result){
                 session.sub_flow_status = 0
                 session.main_status = 1
-                ws.send("Sei tornato al menu principale")
+                ws.send("You are now on the main menu")
               },
               function(error){
                 console.error(error)
