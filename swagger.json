@@ -30,12 +30,18 @@
           "required" : true,
           "type" : "int"
         },{
-          "name" : "exculded_ingredients",
+          "name" : "excluded_ingredients",
           "in" : "query",
           "descritpiton" : "ingredeints to exlude, e.g. for intollerances, preferences etc..",
           "required" : false,
           "type" : "string, value separated by '-' "
-        } ],
+        },{
+          "name" : "included_ingredients",
+          "in" : "query",
+          "descritpiton" : "ingredeints to include",
+          "required" : false,
+          "type" : "string, value separated by '-' "
+        }],
         "responses" : {
           "200" : {
             "description": "No error, success!!!",
@@ -67,7 +73,7 @@
           "200" : {
             "description": "No error, success",
             "schema": {
-              "type": "json"
+              "type": "string"
             }
           },
           "400" : {
@@ -101,7 +107,7 @@
           "200" : {
             "description": "No error, success",
             "schema": {
-              "type": "string"
+              "type": "json"
             }
           },
           "400" : {
