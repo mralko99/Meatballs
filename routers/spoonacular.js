@@ -190,7 +190,7 @@ function getMealComplex(sub_name, max_calories, excluded_ingredients, included_i
       "x-rapidapi-key": process.env.X_RAPIDAPI_KEY,
       "useQueryString": true
     });
-    excluded_ingredients_joined = excludeIngredients.join("%2C ")
+    excluded_ingredients_joined = excluded_ingredients.join("%2C ")
     included_ingredients_joined = included_ingredients.join("%2C ")
     req.query({
     	"query": sub_name,
@@ -199,14 +199,16 @@ function getMealComplex(sub_name, max_calories, excluded_ingredients, included_i
     	"maxCalories": max_calories,
     	"number": "1"
     });
+    console.log(JSON.stringify(req))
     req.end(
       function(res){
+          console.log(JSON.stringify(res.body))
         	if (res.error) reject(res.error);
-          meal = res.body.result
-          meal.delete("usedIngredientCount")
-          meal.delete("likes")
-          meal.delete("image")
-          meal.delete("imageType")
+          meal = res.body.results[0]
+          delete meal.usedIngredientCount
+          delete meal.likes
+          delete meal.image
+          delete meal.imageType
           resolve(meal)
       }
     )

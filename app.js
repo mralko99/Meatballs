@@ -134,15 +134,28 @@ app.get("/apimeatballs/getrecipe/:sub_name",
   function(req,res){
     sub_name = req.params.sub_name
     max_calories = req.query.max_calories
-    excluded_ingredients = req.query.excluded_ingredients
-    included_ingredients = req.query.included_ingredients
-    if(!isNaN(sub_name) || isNan(max_calories) || !isNaN(exculded_ingredients) || !isNaN(included_ingredients)){
-      ws.status(400)
+    var excluded_ingredients = req.query.excluded_ingredients
+    var included_ingredients = req.query.included_ingredients
+
+    if(excluded_ingredients == undefined){
+      var excluded_ingredients = ""
+      console.log("CIOOOO")
+    }
+    if(included_ingredients == undefined){
+      var included_ingredients = ""
+      console.log("CIOOOO")
+    }
+
+    console.log(excluded_ingredients)
+    console.log(included_ingredients)
+    console.log(max_calories)
+    if(!isNaN(sub_name) || isNaN(max_calories) || !isNaN(excluded_ingredients) || !isNaN(included_ingredients)){
+      res.status(400)
     }
     excluded_ingredients_array = excluded_ingredients.split("-")
     included_ingredients_array = included_ingredients.split("-")
 
-    session.spoonacular.getMealComplex(sub_name,max_calories,excluded_ingredients,included_ingredients).then(
+    session.spoonacular.getMealComplex(sub_name,max_calories,excluded_ingredients_array,included_ingredients_array).then(
       function(result){
         meal = result
         return session.spoonacular.recipeById(meal.id)
