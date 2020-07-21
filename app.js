@@ -133,7 +133,7 @@ app.get("/apimeatballs/getrecipe/:sub_name",
   function(req,res){
     sub_name = req.params.sub_name
     max_calories = req.query.max_calories
-    exculded_ingredients = req.query.exculded_ingredients
+    excluded_ingredients = req.query.excluded_ingredients
     included_ingredients = req.query.included_ingredients
     if(!isNaN(sub_name) || isNan(max_calories) || !isNaN(exculded_ingredients) || !isNaN(included_ingredients)){
       ws.status(400)
