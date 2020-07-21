@@ -126,7 +126,7 @@ function mealsPlanning_Stringify (planned_meals){
 function recipeById(Id){
   return new Promise (function (resolve,reject) {
     var forRapid =  "https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/recipes/" + Id + "/analyzedInstructions";
-
+    console.log("forRapid\n" +  forRapid);
     var req = unirest("GET", forRapid);
 
     req.query({
@@ -143,18 +143,17 @@ function recipeById(Id){
 
     req.end(
       function (res){
-        if (res.error)
-          reject(res.error);
-
+        if (res.error)reject(res.error);
+        console.log("okissimo\n" + JSON.stringify(res) + "finse\n\n")
         const steps = res.body[0].steps.length;
         result = result + "There are " + steps + " steps: "+"\n";
         for(var i = 0; i < steps; i++){
           var z = i + 1;
-          result = result + "Step " + z + "):\n" + res.body[0].steps[i].step + "\n" +"Equipment needed for this step: \n" ;
+          result = result + "Step " + z + "):\n" + res.body[0].steps[i].step + "\n\nEquipment needed for this step: \n" ;
           for(var k = 0; k < res.body[0].steps[i].equipment.length; k++){
             result = result + res.body[0].steps[i].equipment[k].name + "\n";
           }
-          result = result + "\n\nIngredients needed for this step: ";
+          result = result + "\nIngredients needed for this step: ";
           for(var j = 0; j < res.body[0].steps[i].ingredients.length; j++){
             result = result + res.body[0].steps[i].ingredients[j].name + "\n";
           }
