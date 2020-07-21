@@ -1,6 +1,6 @@
 # Meatballs :hamburger:
 
-![Logo](https://it.freepik.com/vettori-premium/illustrazione-di-un-hamburger-fast-food-stilizzato-cibo-di-strada-icona_7627475.htm)
+![Logo](https://external-preview.redd.it/PxYPalqae7fMR0A-piAKk9sUdLqxpQKEgbo9pm9Oj9Q.jpg?auto=webp&s=a81a7d26d8d1bfe127a13d47f21fbabba6bc95c8)
 
 Meatballs is a web application born with the intent to **satiate** food-related needs of our clients, keeping an eye on the ambient and on the wallet, the whole with the ultimate goal to provide a healthy and tasty diet.
 What Meatballs consists of is a user friendly chatbot who will supply many options for your diet, eventually taking into account food intolerances, ingredients you already possess and don't want to waste and many others features.
