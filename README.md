@@ -80,21 +80,6 @@ X_RAPIDAPI_KEY
 ```
 To interact with the application, a socket chat is needed.
 
-
-## Running the tests
-
-- [ ] *Explain how to run the automated tests for this system*
-
-### Break down into end to end tests
-
-- [ ] *Explain what these tests test and why*
-
-```
-Give an example
-```
-
-
-
 ## Authors
 
 * **Alberto Coluzzi**
