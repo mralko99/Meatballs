@@ -123,17 +123,97 @@ app.get("/calendar/callback", function(req,res){
 })
 
 
-//###################### External API##################################à
+//###################### External API##################################
+
+// API 1
 app.get("/apimeatballs/getrecipe/:sub_name",
   function(req,res){
     sub_name = req.params.sub_name
     max_calories = req.query.max_calories
     exculded_ingredients = req.query.exculded_ingredients
+    included_ingredients = req.query.included_ingredients
+    if(!isNaN(sub_name) || isNan(max_calories) || !isNaN(exculded_ingredients) || !isNaN(included_ingredients)){
+      ws.status(400)
+    }
     excluded_ingredients_array = excluded_ingredients.split("-")
+    included_ingredients_array = included_ingredients.split("-")
 
-
-
-
+    session.spoonacular.getMealComplex(sub_name,max_calories,excluded_ingredients,included_ingredients).then(
+      function(result){
+        meal = result
+        return session.spoonacular.recipeById(meal.id)
+      },
+      function(error){
+        console.log(error)
+        res.status(500).send("Error in External API query")
+      }
+    ).then(
+      function(result_2){
+        recipe = result_2
+        meal.recipe = recipe
+        res.send(recipe)
+      },
+      function(error_2){
+        console.log(error_2)
+        res.status(500).send("Error in External API query")
+      }
+    )
   }
 )
+
+//API 2
+app.get("/apimeatballs/nutritionalvalues",
+  function(req,res){
+    ingredient = req.query.ingredient
+    if(!isNaN(ingredient)){
+      ws.status(400)
+    }
+    session.mongoDB.getIngredientbyName(ingredinet).then(
+      function(result){
+        ingredientId = result
+        if(ingredientId == null){
+          console.log("Ingredient not found")
+          res.status(404).send("Ingredient not found")
+        }
+        else{
+          return session.spoonacular.getNutritionalsById(ingredientId)
+        }
+      },
+      function(error){
+        console.log(error)
+        res.status(500).send("Error in verify ingredient")
+      }
+    ).then(
+      function(result){
+        res.send(result)
+      },
+      function(error_2){
+        console.log(error_2)
+        res.status(500).send("Error in getting nutritions")
+      }
+    )
+  }
+)
+
+//API 3
+app.get("/apimeatballs/shoppinglist/:product_type",
+  function(req,res){
+    product_type = req.query.params
+    max_calories = req.query.max_calories
+    max_fat = req.query.max_fat
+    if(!isNaN(product_type) || isNan(max_calories) || isNan(max_fat)){
+      ws.status(400)
+    }
+    session.spoonacular.getGroceryProducts(product_type,max_calories,max_fat).then(
+      function(result){
+        ws.send(result)
+      },
+      function(error){
+        console.log(error)
+        ws.status(500).send("Error in External API query")
+      }
+    )
+  }
+)
+
 app.listen(5000)

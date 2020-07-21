@@ -24,6 +24,8 @@ token_request_url = "https://oauth2.googleapis.com/token"
 create_calendar_endpoint = "https://www.googleapis.com/calendar/v3/calendars"
 //
 
+GOOGLE_CALENDAR_TIMESTAMP_DURATION = 5000000
+CALENDAR_TOKEN_TOLERANCE = 20000
 
 client_id = process.env.GOOGLE_CLIENT_ID
 
@@ -211,7 +213,7 @@ function getAccessTokenUser(session){
               )
             })
           }
-          else if(Date.now() - accessTokenEmissionTimestamp < process.env.GOOGLE_CALENDAR_TIMESTAMP_DURATION - 20000){
+          else if(Date.now() - accessTokenEmissionTimestamp < GOOGLE_CALENDAR_TIMESTAMP_DURATION - CALENDAR_TOKEN_TOLERANCE){
             console.log("[getAccessTokenUser] Token ancora valido!")
             resolve(accessToken)
           }

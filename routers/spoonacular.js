@@ -171,10 +171,114 @@ function recipeById(Id){
 }
 
 
+/*
+returns JSON = {
+            "id": [Int],
+            "title": [String],
+            "calories": [Int],
+            "protein": [Int],
+            "fat": [Int],
+            "carb": [Int]
+}
+*/
+function getMealComplex(sub_name, max_calories, excluded_ingredients, included_ingredients){
+  return new Promise (function(resolve,reject){
+    var url = "https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/recipes/searchComplex"
+    var req = unirest("GET", url);
+    req.headers({
+      "x-rapidapi-host": process.env.X_RAPIDAPI_HOST,
+      "x-rapidapi-key": process.env.X_RAPIDAPI_KEY,
+      "useQueryString": true
+    });
+    excluded_ingredients_joined = excludeIngredients.join("%2C ")
+    included_ingredients_joined = included_ingredients.join("%2C ")
+    req.query({
+    	"query": sub_name,
+    	"includeIngredients": included_ingredients_joined,
+    	"excludeIngredients": excluded_ingredients_joined,
+    	"maxCalories": max_calories,
+    	"number": "1"
+    });
+    req.end(
+      function(res){
+        	if (res.error) reject(res.error);
+          meal = res.body.result
+          meal.delete("usedIngredientCount")
+          meal.delete("likes")
+          meal.delete("image")
+          meal.delete("imageType")
+          resolve(meal)
+      }
+    )
+  })
+}
+
+
+/*
+returns Array of JSON = [
+          {
+            "id": [Int],
+            "title": [String]
+          },{
+            ....
+          }
+        ]
+*/
+function getGroceryProducts(product_type,max_calories,max_fat){
+  new Promise (function(resolve,reject){
+    var url = "https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/food/products/search"
+    var req = unirest("GET", url);
+    req.headers({
+      "x-rapidapi-host": process.env.X_RAPIDAPI_HOST,
+      "x-rapidapi-key": process.env.X_RAPIDAPI_KEY,
+      "useQueryString": true
+    });
+    req.query({
+      "query": product_type,
+      "maxCalories": max_calories,
+      "maxFat": max_fat,
+      "number": "10"
+    });
+    req.end(
+      function(res){
+        if (res.error) reject(res.error);
+        products = res.body.products
+        for(index in products){
+          products[index].delete("image")
+          products[index].delete("imageType")
+          products[index].delete("id")
+        }
+        resolve(products)
+      }
+    )
+  })
+}
+
+function getNutritionalsById(product_id){
+  new Promise (function(resolve,reject){
+    var url = "https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/food/products/%7B"+product_id+"%7D/nutritionWidget"
+    var req = unirest("GET", url);
+    req.headers({
+      "x-rapidapi-host": process.env.X_RAPIDAPI_HOST,
+      "x-rapidapi-key": process.env.X_RAPIDAPI_KEY,
+      "useQueryString": true
+    });
+    req.end(
+      function(res){
+        if (res.error) reject(res.error);
+        resolve(res.body)
+      }
+    )
+  })
+}
+
 module.exports = {
   mealsByIngredient,
   mealsByIngredient_Stringify,
   mealsPlanning,
   mealsPlanning_Stringify,
-  recipeById
+  recipeById,
+  getMealComplex,
+  getGroceryProducts,
+  getNutritionalsById
 }

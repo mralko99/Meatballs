@@ -43,8 +43,8 @@
               "type": "JSON"
             }
           },
-          "400" : {
-            "description" : "Not valid ingredient"
+          "500" : {
+            "description" : "Error in External API query"
           }
         }
       }
@@ -71,6 +71,9 @@ Visualize Product Nutrition + chiamata DB per ID
           },
           "400" : {
             "description" : "Not valid ingredient"
+          },
+          "500" : {
+            "description" : "Error in External API query"
           }
         }
       }
