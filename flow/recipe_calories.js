@@ -35,7 +35,7 @@ function recipe_calories(ws,msg,session){
         ws.send("Breakfast at "+date)
         session.mongoDB.associateMeal(session.user,calories_meals_json.breakfast.id, calories_meals_json.breakfast.title,null).then(
           function(result){
-            return session.calendar.createEvent(session.user,"Breakfast",calories_meals_json.breakfast.title+"\nID= "+calories_meals_json.breakfast.id, date)
+            return session.calendar.createEvent(session,"Breakfast",calories_meals_json.breakfast.title+"\nID= "+calories_meals_json.breakfast.id, date)
           },
           function(error){
             console.log(error)
@@ -45,7 +45,7 @@ function recipe_calories(ws,msg,session){
         ).then(
           function(result_2){
             ws.send("Breakfast OK!! ")
-            return session.mongoDB.associateMeal(session.user,calories_meals_json.lunch.id, calories_meals_json.lunch.title,null)
+            return session.mongoDB.associateMeal(sessio.user,calories_meals_json.lunch.id, calories_meals_json.lunch.title,null)
           },
           function(error_2){
             ws.send(error_2)
@@ -60,7 +60,7 @@ function recipe_calories(ws,msg,session){
             }
             date.setHours(13)
             ws.send("lunch at "+date)
-            return session.calendar.createEvent(session.user,"Lunch",calories_meals_json.lunch.title+"\nID= "+calories_meals_json.lunch.id, date)
+            return session.calendar.createEvent(session,"Lunch",calories_meals_json.lunch.title+"\nID= "+calories_meals_json.lunch.id, date)
           },
           function(error_3){
             ws.send(error_2)
@@ -84,7 +84,7 @@ function recipe_calories(ws,msg,session){
             }
             date.setHours(20)
             ws.send("Dinner at "+date)
-            return session.calendar.createEvent(session.user,"Dinner",calories_meals_json.dinner.title+"\nID= "+calories_meals_json.dinner.id, date)
+            return session.calendar.createEvent(session,"Dinner",calories_meals_json.dinner.title+"\nID= "+calories_meals_json.dinner.id, date)
           },
           function(error_5){
             ws.send(error_2)

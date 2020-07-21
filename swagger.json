@@ -13,7 +13,7 @@
   //"basePath" : "/",
   "schemes" : [ "http" ],
   "paths" : {
-    "/apimeatballs/recipeslist/{sub_name}" : {
+    "/apimeatballs/getrecipe/{sub_name}" : {
       "get" : {
         "summary" : "returns a recipe including the parameter 'sub_name'in the meal name",
         "produces" : [ "application/json" ],
@@ -24,23 +24,23 @@
           "required" : true,
           "type" : "string"
         },{
-          "name" : "calories",
+          "name" : "max_calories",
           "in" : "query",
           "descritpiton" : "max number of calories",
-          "required" : true,
+          "required" : false,
           "type" : "int"
         },{
           "name" : "exculded_ingredients",
           "in" : "query",
           "descritpiton" : "ingredeints to exlude, e.g. for intollerances, preferences etc..",
           "required" : false,
-          "type" : "string, value separated by '%2C' or ' '"
+          "type" : "string, value separated by '-' "
         } ],
         "responses" : {
           "200" : {
             "description": "No error, success!!!",
             "schema": {
-              "type": "JSON od recipe and meal"
+              "type": "JSON"
             }
           },
           "400" : {

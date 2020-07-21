@@ -76,11 +76,11 @@ function getAccessToken(code, redirect_uri){
 
 
 
-function createCalendar(user,name){
+function createCalendar(session,name){
   console.log()
   return new Promise(
     function(resolve,reject) {
-      getAccessTokenUser(user).then(
+      getAccessTokenUser(session.user).then(
         function (result) {
           url = create_calendar_endpoint+"?key="+api_key
 
@@ -96,7 +96,7 @@ function createCalendar(user,name){
               if(err) reject(err)
               console.log("[createCalendar] Updateing calendarId data on DB..")
               console.log(body.id)
-              updateCalendarId_promise = mongoDB.updateCalendarId(user, body.id)
+              updateCalendarId_promise = session.mongoDB.updateCalendarId(user, body.id)
               updateCalendarId_promise.then(
                 function(result_2){ resolve(body.id) },
                 function(error_2){ reject(error_2) }
@@ -110,14 +110,14 @@ function createCalendar(user,name){
   )
 }
 
-function createEvent(user, title, description, startDateTimeString){  //datetime String, format ---> October 13, 2014 11:13:00
+function createEvent(session, title, description, startDateTimeString){  //datetime String, format ---> October 13, 2014 11:13:00
   console.log()
   return new Promise(function(resolve,reject){
       console.log("[create event] function ok")
-      getAccessTokenUser(user).then(
+      getAccessTokenUser(session.user).then(
         function(result){
           access_token = result
-          getCalendarId_promise = getCalendarId(user)
+          getCalendarId_promise = getCalendarId(session.user)
           getCalendarId_promise.then(
             function(result){
               console.log("[CreateEvent] Calendarid:   "+calendarId)
@@ -173,11 +173,11 @@ function createEvent(user, title, description, startDateTimeString){  //datetime
   })
 }
 
-function getAccessTokenUser(user){
+function getAccessTokenUser(session){
   return new Promise(
     function(resolve,reject){
       console.log()
-      getCalendarInfo_promise = mongoDB.getCalendarInfo(user)
+      getCalendarInfo_promise = session.mongoDB.getCalendarInfo(user)
       getCalendarInfo_promise.then(
         function(result){
           console.log("[getAccessTokenUser] Response from DB: "+JSON.stringify(result))
@@ -194,7 +194,7 @@ function getAccessTokenUser(user){
               getAccessToken_promise.then(
                 function(result_2){
                   accessToken = result_2
-                  updateCalendarToken_promise = mongoDB.updateCalendarToken(user,accessToken,Date.now(), accessCode)
+                  updateCalendarToken_promise = session.mongoDB.updateCalendarToken(session.user,accessToken,Date.now(), accessCode)
                   updateCalendarToken_promise.then(
                     function(result_update){
                       console.log("[getAccessTokenUser] accessToken updated on DB")
@@ -221,7 +221,7 @@ function getAccessTokenUser(user){
             getAccessToken_promise.then(
               function(result_2){
                 accessToken = result_2
-                updateCalendarToken_promise = mongoDB.updateCalendarToken(user,accessToken,Date.now(), accessCode)
+                updateCalendarToken_promise = session.mongoDB.updateCalendarToken(user,accessToken,Date.now(), accessCode)
                 updateCalendarToken_promise.then(
                   function(result_update){
                     console.log("[getAccessTokenUser] accessToken updated on DB")
@@ -248,17 +248,17 @@ function getAccessTokenUser(user){
 
 
 
-function getCalendarId(user) {
+function getCalendarId(session) {
   return new Promise(
     function(resolve,reject){
       console.log()
       console.log("[getCalendarId] Getting calendarId, user: "+user)
-      mongoDB.getCalendarInfo(user).then(
+      session.mongoDB.getCalendarInfo(session.user).then(
         function(result){
           calendarId = result.calendarId
           console.log("[getCalendarId] calendarId: "+calendarId)
           if(calendarId == undefined || calendarId == null){
-            createCalendar(user,"Diet").then(
+            createCalendar(session.user,"Diet").then(
               function(result_2){
                 resolve(result_2)
               },

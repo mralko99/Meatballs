@@ -6,7 +6,7 @@ session = require('express-session');
 unirest = require("unirest");
 
 session.calendar = require("./routers/calendar");
-session.twitter = require("./routers/twitter_test2");
+session.twitter = require("./routers/twitter");
 session.mongoDB = require("./routers/mongoDB");
 session.spoonacular = require("./routers/spoonacular");
 
@@ -101,7 +101,7 @@ app.ws("/chatbot", (ws,req)=> {
 
 
 app.get("/twitter/callback", (req,res)=> {
-  twitter.consumer().getOAuthAccessToken(req.query.oauth_token, session.oauthRequestTokenSecret, req.query.oauth_verifier, function(error, oauthAccessToken, oauthAccessTokenSecret, results) {
+  session.twitter.consumer().getOAuthAccessToken(req.query.oauth_token, session.oauthRequestTokenSecret, req.query.oauth_verifier, function(error, oauthAccessToken, oauthAccessTokenSecret, results) {
     if (error) {
       res.send("Error getting OAuth access token "+error);
     } else {
@@ -129,5 +129,16 @@ app.get("/calendar/callback", function(req,res){
   res.send("Successful Authentication, you can close this window")
   session.calendar.authEmitter.emit("accessCodeOK",access_code)
 })
+
+
+//###################### External API##################################à
+app.get("/apimeatballs/getrecipe/:sub_name",
+  function(req,res){
+    sub_name = req.params.sub_name
+    max_calories = req.query.max_calories
+    exculded_ingredients = req.query.exculded_ingredients
+
+
+  }
 
 app.listen(5000)
