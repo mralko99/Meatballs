@@ -4,7 +4,7 @@
 
 Meatballs is a web application born with the intent to **satiate** food-related needs of our clients, keeping an eye on the ambient and on the wallet, the whole with the ultimate goal to provide a healthy and tasty diet.
 What Meatballs consists of is a user friendly chatbot who will supply many options for your diet, eventually taking into account food intolerances, ingredients you already possess and don't want to waste and many others features.
-It's possible to find the architecture schema..........
+In-depth of the chatbot working scheme can be found here: ..........
 
 
 ## Technologies Used
@@ -45,11 +45,11 @@ It's possible to find the architecture schema..........
 
 
 ## Getting Started
-It's possible to obtain a copy of the project by cloning the repository on Github.  
+A working copy of the project can be obtained by cloning the repository on Github.  
 
 ### Prerequisites
 
-The Node.js modules you have to install in the project folder in order to get the application working are:
+The Node.js modules you have to install in the project folder in order to get the application working properly are:
 
 ```
 $ npm install express
@@ -66,7 +66,7 @@ $ npm install mongoose
 $ npm install twitter
 ```
 
-The module dotenv, installed before through npm install dotenv, allows you to loads environment variables in a file called .env. The file .env contains all the sensitive data or credential you don't want to share with everyone.
+The module dotenv, installed before through $ npm install dotenv, allows you to load environment variables in a file called .env. Such file will contain all the sensitive data or credential you don't want to share with the public.
 Our .env file contains the following data:
 ```
 CONSUMER_KEY
@@ -78,7 +78,7 @@ MONGODB_URI
 X_RAPIDAPI_HOST
 X_RAPIDAPI_KEY
 ```
-To interact with the application, it's necessary a socket chat.
+To interact with the application, a socket chat is needed.
 
 
 ## Running the tests
