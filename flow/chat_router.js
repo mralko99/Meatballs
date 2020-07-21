@@ -20,18 +20,28 @@ function chat_router(ws,msg,session){
           for(i = 0; i < res.length; i++){
             ws.send(i+") "+res[i].name)
           }
+          session.main_status = 4
         },
         function(err){
           ws.send(err)
           ws.close()
         }
       )
-      session.main_status = 4
       break;
 
     case "post twitter":
-      ws.send("Hom many calories do you need?")
-      session.main_status = 5
+      session.twitter.RequestToken(session,ws).then(
+        function(res){
+          ws.send("Insert the text for your tweet")
+          if (session.recipe_ID!="")
+            ws.send('Use "help" for some useful formatting codes with the meal')
+          session.main_status = 5
+        },
+        function(err){
+          ws.send(err)
+          ws.close()
+        }
+      )
       break;
 
     case "view recipe":

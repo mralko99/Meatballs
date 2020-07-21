@@ -76,7 +76,6 @@ function recipe_ingredients(ws,msg,session){
         session.recipe_ID = meals_json[parseInt(msg) - 1]["id"]
         session.spoonacular.recipeById(session.recipe_ID).then(
           function(recipe){
-            ws.send("This is your recipe, have a good meals!")
             session.mongoDB.associateMeal(
               session.user,
               meals_json[parseInt(msg) - 1]["id"],

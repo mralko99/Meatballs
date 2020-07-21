@@ -20,6 +20,7 @@ function select_meal(ws,msg,session){
     else{
       session.recipe_ID=session.result[parseInt(msg)].id
       ws.send("You successfully select "+session.result[parseInt(msg)].name)
+      session.main_status=1
     }
   }
 }
