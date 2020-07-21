@@ -8,18 +8,18 @@ function auth(ws,msg,session){
             password = res
             if(password == "")
             {
-              ws.send("L'account non esiste")
-              ws.send("Inserisci una password per creare un account")
+              ws.send("This account does not exist")
+              ws.send("Insert a password to create the account")
               session.sub_flow_status = 1
             }
             else
             {
-              ws.send("Inserisci la password")
+              ws.send("Insert the password")
               session.sub_flow_status = 2
             }
           },
           function(err) {
-            ws.send("ERROR:"+err)
+            console.error(err)
             ws.close()
           }
         )
@@ -30,13 +30,13 @@ function auth(ws,msg,session){
         password = msg
         try{
           session.mongoDB.createUser(session.user,password)
-          ws.send("User creato")
-          ws.send("Benvenuto "+session.user)
-          ws.send('Scrivere "help" per avere la lista dei comandi')
+          ws.send("User created")
+          ws.send("Welcome Back, "+session.user)
+          ws.send('Type "help" to have a list of commands')
           session.sub_flow_status = 0
           session.main_status = 1
         }catch(err){
-          ws.send("ERROR: "+err)
+          console.error(err)
           ws.close()
         }
       break;
@@ -44,13 +44,13 @@ function auth(ws,msg,session){
     // user registrato - controllo password
     case 2:
         if(password != msg){
-          ws.send("Reinserire password")
+          ws.send("Wrong password, try again")
           session.sub_flow_status = 2
         }
         else{
-          ws.send("Password corretta")
-          ws.send("Benvenuto "+session.user)
-          ws.send('Scrivere "help" per avere la lista dei comandi')
+          ws.send("Correct password")
+          ws.send("Welcome Back, "+session.user)
+          ws.send('Type "help" to have a list of commands')
           session.sub_flow_status = 0
           session.main_status = 1
         }

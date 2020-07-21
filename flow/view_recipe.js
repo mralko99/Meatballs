@@ -1,7 +1,7 @@
 function view_recipe(ws,msg,session){
 
   if(session.recipe_ID == ""){
-    ws.send("No meal selected!!")
+    ws.send('No meal selected!! Try to select one with "select meal"')
   }
   else{
     session.mongoDB.getMealById(session.recipe_ID).then(
@@ -11,7 +11,7 @@ function view_recipe(ws,msg,session){
         session.main_status = 1
       },
       function(error){
-        ws.send("ERROR"+error)
+        console.error(error)
         ws.close()
       }
     )

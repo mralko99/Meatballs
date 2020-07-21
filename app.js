@@ -24,7 +24,7 @@ app.use(express.json());
 
 app.ws("/chatbot", (ws,req)=> {
 
-  ws.send('Inserisci username')
+  ws.send('Insert username')
 
   session.main_status=0 // test
   session.sub_flow_status=0
@@ -34,24 +34,31 @@ app.ws("/chatbot", (ws,req)=> {
   ws.on("message",msg =>{
     if (session.main_status>=1&&(msg == "help"||msg == "exit"||msg == "menu")){
       if(msg == "help"){
-        ws.send("Ti sei perso nello status:"+session.main_status+" sub_status:"+session.sub_flow_status)
-        ws.send("exit - esci dal programma")
-        ws.send("menu - torna al menu principale")
+        ws.send("Current status:"+session.main_status+" & sub_status:"+session.sub_flow_status)
+        ws.send("exit - quit from the chat")
+        if (session.main_status!=1){
+          ws.send("menu - go back to main menu")
+        }
         if (session.main_status==1){
-          ws.send("recipe ingredients - fa partire il flow per scegliere il pasto")
+          ws.send("recipe ingredients - start the flow to find a meal")
+          ws.send("meal planner - start the flow to find start a diet with calendar")
+          ws.send("select meal - search from previously viewed meal to select them")
+          ws.send("post twitter - start the flow to find a meal")
+          ws.send("view recipe - view the recipe of the selected meal")
         }
       }
 
       //Close the chat
       else if(msg == "exit"){
-        ws.send("Ti sei disconnesso dalla sessione")
+        ws.send("You succefully disconnect from the session")
         ws.close()
       }
 
       //Redirect user to main menu
       else if(msg == "menu"){
         session.main_status = 1
-        ws.send("Sei tornato al menu principale")
+        session.sub_flow_status = 0
+        ws.send("You are now on the main menu")
       }
     }
     else{
@@ -80,19 +87,6 @@ app.ws("/chatbot", (ws,req)=> {
         case 5:
           post_twitter.post_twitter(ws,msg,session)
           break;
-        /*
-        case 6:
-
-          break;
-        /*
-        case 7:
-
-          break;
-        /*
-        case 8:
-
-          break;
-        */
         default:
       }
     }
@@ -108,14 +102,12 @@ app.get("/twitter/callback", (req,res)=> {
 
       console.log("AccessToken Obtained")
 
-      res.send(results.screen_name+" puoi chiudere la scheda")
-      //FAI LA CHIAMATA CON AUTH EMITTER
+      res.send("Congratulation "+results.screen_name+" you have gotten a successful authentication, you can now close this tab")
       access_code={
         "access_token":oauthAccessToken,
         "access_secret":oauthAccessTokenSecret
       }
       session.twitter.authEmitter.emit("accessCodeOK",access_code)
-      //twitter.Post_Local("ciao mi chiamo "+results.screen_name,oauthAccessToken,oauthAccessTokenSecret)
     }
   });
 })

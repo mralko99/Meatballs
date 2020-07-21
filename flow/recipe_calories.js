@@ -16,7 +16,7 @@ function recipe_calories(ws,msg,session){
             session.sub_flow_status = 1
           },
           function (error){
-            ws.send(error)
+            console.error(error)
             ws.close()
           }
         )
@@ -38,8 +38,7 @@ function recipe_calories(ws,msg,session){
             return session.calendar.createEvent(session,"Breakfast",calories_meals_json.breakfast.title+"\nID= "+calories_meals_json.breakfast.id, date)
           },
           function(error){
-            console.log(error)
-            ws.send(error)
+            console.error(error)
             ws.close()
           }
         ).then(
@@ -48,7 +47,7 @@ function recipe_calories(ws,msg,session){
             return session.mongoDB.associateMeal(sessio.user,calories_meals_json.lunch.id, calories_meals_json.lunch.title,null)
           },
           function(error_2){
-            ws.send(error_2)
+            console.error(error_2)
             ws.close()
           }
         ).then(
@@ -63,7 +62,7 @@ function recipe_calories(ws,msg,session){
             return session.calendar.createEvent(session,"Lunch",calories_meals_json.lunch.title+"\nID= "+calories_meals_json.lunch.id, date)
           },
           function(error_3){
-            ws.send(error_2)
+            console.error(error_2)
             ws.close()
           }
         ).then(
@@ -72,7 +71,7 @@ function recipe_calories(ws,msg,session){
             return session.mongoDB.associateMeal(session.user,calories_meals_json.dinner.id, calories_meals_json.dinner.title,null)
           },
           function(error_4){
-            ws.send(error_2)
+            console.error(error_2)
             ws.close()
           }
         ).then(
@@ -87,7 +86,7 @@ function recipe_calories(ws,msg,session){
             return session.calendar.createEvent(session,"Dinner",calories_meals_json.dinner.title+"\nID= "+calories_meals_json.dinner.id, date)
           },
           function(error_5){
-            ws.send(error_2)
+            console.error(error_2)
             ws.close()
           }
         ).then(
@@ -99,7 +98,7 @@ function recipe_calories(ws,msg,session){
             ws.send("Sei tornato al menu principale")
           },
           function(error_6){
-            ws.send(error_6)
+            console.error(error_6)
             ws.close()
           }
         )

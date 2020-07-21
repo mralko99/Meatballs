@@ -11,12 +11,12 @@ function recipe_ingredients(ws,msg,session){
               ingredients_3_meals = msg
             }
             else{
-              ws.send("L'ingrediente non è valido")
+              ws.send("The ingredient is not valid")
             }
             session.sub_flow_status=1
           },
           function(err) {
-            ws.send("ERROR:"+err)
+            console.error(err)
             ws.close()
           }
         )
@@ -26,16 +26,16 @@ function recipe_ingredients(ws,msg,session){
       if(msg == "finish"){
         if (ingredients_3_meals != ""){
           session.spoonacular.mealsByIngredient(ingredients_3_meals).then(
-            function(result){
-              meals_json = result
-              ws.send("Choose your recipe, type 1 or 2 or 3 to select the recipe")
+            function(res){
+              meals_json = res
+              ws.send("Type the corresponding number to choose your recipe")
               ws.send(session.spoonacular.mealsByIngredient_Stringify(meals_json))
               session.sub_flow_status = 2
               return
 
             },
-            function(reject){
-              ws.send("ERROR: "+reject)
+            function(err){
+              console.error(err)
               ws.close()
             })
         }
@@ -48,7 +48,7 @@ function recipe_ingredients(ws,msg,session){
         session.mongoDB.checkIngredients(msg).then(
           function(res) {
             if(!res){
-              ws.send("L'ingrediente non è valido")
+              ws.send("The ingredient is not valid")
             }
             else{
               if(ingredients_3_meals == ""){
@@ -60,7 +60,7 @@ function recipe_ingredients(ws,msg,session){
             }
           },
           function(err) {
-            ws.send("ERROR:"+err)
+            console.error(err)
             ws.close()
           }
         )
@@ -88,7 +88,7 @@ function recipe_ingredients(ws,msg,session){
                 ws.send("Sei tornato al menu principale")
               },
               function(error){
-                ws.send("ERROR:"+error)
+                console.error(error)
                 ws.close()
               }
             )

@@ -8,7 +8,7 @@ function select_meal(ws,msg,session){
         }
       },
       function(err){
-        ws.send(err)
+        console.error(err)
         ws.close()
       }
     )

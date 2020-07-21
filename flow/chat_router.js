@@ -23,7 +23,7 @@ function chat_router(ws,msg,session){
           session.main_status = 4
         },
         function(err){
-          ws.send(err)
+          console.error(err)
           ws.close()
         }
       )
@@ -32,13 +32,13 @@ function chat_router(ws,msg,session){
     case "post twitter":
       session.twitter.RequestToken(session,ws).then(
         function(res){
-          ws.send("Insert the text for your tweet")
+          ws.send("Insert the text for your tweet (remember max.280 characters)")
           if (session.recipe_ID!="")
-            ws.send('Use "help" for some useful formatting codes with the meal')
+            ws.send('If you write in your message /name/ it will be replaced with the name of the recipe')
           session.main_status = 5
         },
         function(err){
-          ws.send(err)
+          console.error(err)
           ws.close()
         }
       )

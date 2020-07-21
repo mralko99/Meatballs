@@ -19,7 +19,7 @@ function RequestToken(session,ws){
     session.mongoDB.getTwitterInfo(session.user).then(
       function(res){
         if(res.twitterToken == null || res.twitterSecret == null){
-          ws.send("This is your first time using twitter so you must Authente first")
+          ws.send("This is your first time using twitter so you must authenticate first")
           consumer().getOAuthRequestToken(function(err_2, oauthToken, oauthTokenSecret, res_2){
             if (err_2) {
               reject(err_2)
