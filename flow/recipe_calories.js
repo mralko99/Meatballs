@@ -5,7 +5,7 @@ function recipe_calories(ws,msg,session){
       console.log("meals_planner, status----> 0")
       if(!isNaN(msg)){    //msg should be calories ---> chack
         //funzione provvisoria
-        mealsByCalories_promise = dailyMealsByCalories_prova()//DEFNITIVA ---> spoonacular.mealsByCalories(msg, diet,excluded_ingredients)  //return
+        mealsByCalories_promise = session.spoonacular.mealsPlanning(msg,"",""); //dailyMealsByCalories_prova()//DEFNITIVA ---> spoonacular.mealsByCalories(msg, diet,excluded_ingredients)  //return
         mealsByCalories_promise.then(
           function(result){
             calories_meals_json = result
@@ -45,7 +45,7 @@ function recipe_calories(ws,msg,session){
         ).then(
           function(result_2){
             ws.send("Breakfast OK!! ")
-            return session.mongoDB.associateMeal(session.user,calories_meals_json.launch.id, calories_meals_json.launch.title,null)
+            return session.mongoDB.associateMeal(session.user,calories_meals_json.lunch.id, calories_meals_json.lunch.title,null)
           },
           function(error_2){
             ws.send(error_2)
@@ -53,14 +53,14 @@ function recipe_calories(ws,msg,session){
           }
         ).then(
           function(result_3){
-            console.log("Launch")
+            console.log("h")
             date = new Date()                           //salva su DB
             if(date.getHours()>13){
               date.setDate(date.getDate()+1)
             }
             date.setHours(13)
-            ws.send("Launch at "+date)
-            return session.calendar.createEvent(session.user,"devi mangiare",calories_meals_json.launch.title+"\nID= "+calories_meals_json.launch.id, date)
+            ws.send("lunch at "+date)
+            return session.calendar.createEvent(session.user,"devi mangiare",calories_meals_json.lunch.title+"\nID= "+calories_meals_json.lunch.id, date)
           },
           function(error_3){
             ws.send(error_2)
@@ -68,7 +68,7 @@ function recipe_calories(ws,msg,session){
           }
         ).then(
           function(result_4){
-            ws.send("Launch OK!!")
+            ws.send("lunch OK!!")
             return session.mongoDB.associateMeal(session.user,calories_meals_json.dinner.id, calories_meals_json.dinner.title,null)
           },
           function(error_4){
@@ -124,7 +124,7 @@ function dailyMealsByCalories_prova(){
           "id": 368974,
           "title": 'Breakfast Mess'
         },
-        "launch":{
+        "lunch":{
           "id": 368955,
           "title": "Iraq Lobster"
         },
@@ -134,6 +134,7 @@ function dailyMealsByCalories_prova(){
         }
       }
 
+      console.log(spoonacular_object)
       resolve(spoonacular_object)
     }
   )
