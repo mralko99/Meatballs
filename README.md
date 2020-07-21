@@ -4,7 +4,6 @@
 
 Meatballs is a web application born with the intent to **satiate** food-related needs of our clients, keeping an eye on the ambient and on the wallet, the whole with the ultimate goal to provide a healthy and tasty diet.
 What Meatballs consists of is a user friendly chatbot who will supply many options for your diet, eventually taking into account food intolerances, ingredients you already possess and don't want to waste and many others features.
-In-depth of the chatbot working scheme can be found here: ..........
 
 
 ## Technologies Used
@@ -79,21 +78,6 @@ X_RAPIDAPI_HOST
 X_RAPIDAPI_KEY
 ```
 To interact with the application, a socket chat is needed.
-
-
-## Running the tests
-
-- [ ] *Explain how to run the automated tests for this system*
-
-### Break down into end to end tests
-
-- [ ] *Explain what these tests test and why*
-
-```
-Give an example
-```
-
-
 
 ## Authors
 
