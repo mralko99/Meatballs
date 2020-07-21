@@ -4,13 +4,13 @@
     "description" : "API esterne per MeatBALLS",
     "version" : "1.0.0",
     "title" : "MeatBALLS API",
-    "license" : {  //modificare licenza!!
+    "license" : {  
       "name" : "MIT",
       "url" : "https://opensource.org/licenses/MIT"
     }
   },
   "host" : "localhost:5000",
-  //"basePath" : "/",
+  "basePath" : "/",
   "schemes" : [ "http" ],
   "paths" : {
     "/apimeatballs/getrecipe/{sub_name}" : {
@@ -53,8 +53,6 @@
       }
     },
     "/apimeatballs/nutritionalvalues" : {
-      //use
-Visualize Product Nutrition + chiamata DB per ID
       "get" : {
         "summary" : "takes a product and return nutritional values ",
         "produces" : [ "application/json" ],
@@ -81,7 +79,7 @@ Visualize Product Nutrition + chiamata DB per ID
         }
       }
     },
-    "/apimeatballs/shoppinglist/:product_type" : {                                             //use Search Grocery Products
+    "/apimeatballs/shoppinglist/:product_type" : {
       "get" : {
         "summary" : "Return a series of produtcs with you can by in a grocery store",
         "produces" : [ "application/json" ],
