@@ -4,6 +4,8 @@ dotenv = require("dotenv").config();
 oauth = require('oauth');
 session = require('express-session');
 unirest = require("unirest");
+const swaggerUI= require('swagger-ui-express');
+const swaggerDocument= require('./swagger.json');
 
 session.calendar = require("./routers/calendar");
 session.twitter = require("./routers/twitter");
@@ -21,6 +23,8 @@ post_twitter =require("./flow/post_twitter");
 app = express()
 enablews(app)
 app.use(express.json());
+
+app.use('/meatballs-swaggerapi',swaggerUI.serve ,swaggerUI.setup(swaggerDocument));
 
 app.ws("/chatbot", (ws,req)=> {
 
