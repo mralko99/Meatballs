@@ -1,9 +1,9 @@
 var oauth = require('oauth');
 var opener = require("opener")
 var dotenv = require("dotenv").config()
-var http = require("http")
-const mongoDB = require('./mongoDB');
 var Twitter = require('twitter');
+
+authEmitter =  new events.EventEmitter()
 
 
 function consumer(){
@@ -13,7 +13,27 @@ function consumer(){
   )
 }
 
-function RequestToken(session){
+function RequestToken(session){/*
+  return new Promise(function(resolve,reject){
+  //RETURN PROMISES
+  session.mongoDB.getTwitterInfo(session.user).then(
+    function(res){
+      if(res.twitterToken == null || res.twitterSecret == null){
+        consumer().getOAuthRequestToken(function(error, oauthToken, oauthTokenSecret, results){
+          if (error) {
+            res.send("Error getting OAuth request token : " + util.inspect(error), 500);
+          } else {
+            session.oauthRequestTokenSecret = oauthTokenSecret;
+            console.log("RequestToken Obtained")
+            opener("https://twitter.com/oauth/authorize?oauth_token="+oauthToken);
+          }
+        });
+      }
+    },
+    function(err){
+      reject(err)
+    }
+  )
   consumer().getOAuthRequestToken(function(error, oauthToken, oauthTokenSecret, results){
     if (error) {
       res.send("Error getting OAuth request token : " + util.inspect(error), 500);
@@ -23,6 +43,7 @@ function RequestToken(session){
       opener("https://twitter.com/oauth/authorize?oauth_token="+oauthToken);
     }
   });
+})*/
 }
 
 function Post_Local(Testo,access_public,access_secret){
@@ -41,40 +62,6 @@ function Post_Local(Testo,access_public,access_secret){
   })
 }
 /*
-function createCalendar(user,name){
-  console.log()
-  return new Promise(
-    function(resolve,reject) {
-      getAccessTokenUser(user).then(
-        function (result) {
-          url = create_calendar_endpoint+"?key="+api_key
-
-          body = {"summary":name}
-          headers = {
-            "Authorization": "Bearer "+result,
-            "Accept": "application/json"
-          }
-          console.log("[createCalendar] Start creating calendar, request data: \nurl: "+url+"\nheaders: "+JSON.stringify(headers))
-          request.post({url:url, body:body, "json":true,headers:headers},
-            function(err,response,body){
-              console.log(body)
-              if(err) reject(err)
-              console.log("[createCalendar] Updateing calendarId data on DB..")
-              console.log(body.id)
-              updateCalendarId_promise = mongoDB.updateCalendarId(user, body.id)
-              updateCalendarId_promise.then(
-                function(result_2){ resolve(body.id) },
-                function(error_2){ reject(error_2) }
-              )
-            }
-          )
-        },
-        function(error){ reject(error) }
-      )
-    }
-  )
-}
-
 function getAccessTokenUser(user){
   return new Promise(
     function(resolve,reject){
@@ -152,5 +139,6 @@ function getAccessTokenUser(user){
 module.exports = {
   RequestToken,
   consumer,
-  Post_Local
+  Post_Local,
+  authEmitter
 }

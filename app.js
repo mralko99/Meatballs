@@ -110,7 +110,12 @@ app.get("/twitter/callback", (req,res)=> {
 
       res.send(results.screen_name+" puoi chiudere la scheda")
       //FAI LA CHIAMATA CON AUTH EMITTER
-      twitter.Post_Local("ciao mi chiamo "+results.screen_name,oauthAccessToken,oauthAccessTokenSecret)
+      access_code={
+        "access_token":oauthAccessToken,
+        "access_secret":oauthAccessTokenSecret
+      }
+      session.twitter.authEmitter.emit("accessCodeOK",access_code)
+      //twitter.Post_Local("ciao mi chiamo "+results.screen_name,oauthAccessToken,oauthAccessTokenSecret)
     }
   });
 })
