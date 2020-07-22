@@ -227,7 +227,7 @@ returns Array of JSON = [
         ]
 */
 function getGroceryProducts(product_type,max_calories,max_fat){
-  new Promise (function(resolve,reject){
+  return new Promise (function(resolve,reject){
     var url = "https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/food/products/search"
     var req = unirest("GET", url);
     req.headers({
@@ -241,15 +241,24 @@ function getGroceryProducts(product_type,max_calories,max_fat){
       "maxFat": max_fat,
       "number": "10"
     });
+    /*
+    console.log("query= "+JSON.stringify(req))
+    console.log("product_type= "+product_type)
+    console.log("max_calories= "+max_calories)
+    console.log("max_fat= "+max_fat)
+    console.log(JSON.stringify(req))
+    */
     req.end(
       function(res){
         if (res.error) reject(res.error);
+        console.log(JSON.stringify(res))
         products = res.body.products
         for(index in products){
-          products[index].delete("image")
-          products[index].delete("imageType")
-          products[index].delete("id")
+          // delete products[index].image
+          // delete products[index].imageType
+          delete products[index].id
         }
+        console.log(products)
         resolve(products)
       }
     )
@@ -257,18 +266,21 @@ function getGroceryProducts(product_type,max_calories,max_fat){
 }
 
 function getNutritionalsById(product_id){
-  new Promise (function(resolve,reject){
-    var url = "https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/food/products/%7B"+product_id+"%7D/nutritionWidget"
+  return new Promise (function(resolve,reject){
+    var url = "https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/food/products/"+product_id+"/nutritionWidget"
     var req = unirest("GET", url);
     req.headers({
       "x-rapidapi-host": process.env.X_RAPIDAPI_HOST,
       "x-rapidapi-key": process.env.X_RAPIDAPI_KEY,
       "useQueryString": true
     });
+    //console.log(JSON.stringify(req))
     req.end(
       function(res){
         if (res.error) reject(res.error);
+        console.log("output da spoonacular= "+JSON.stringify(res.body))
         resolve(res.body)
+        //console.log(JSON.stringify(res.body))
       }
     )
   })

@@ -366,5 +366,6 @@ module.exports = {
   existMeal,
   getMealById,
   getMealsByIds,
-  selectRecipe
+  selectRecipe,
+  getIngredientbyName
 }

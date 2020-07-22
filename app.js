@@ -139,11 +139,9 @@ app.get("/apimeatballs/getrecipe/:sub_name",
 
     if(excluded_ingredients == undefined){
       var excluded_ingredients = ""
-      console.log("CIOOOO")
     }
     if(included_ingredients == undefined){
       var included_ingredients = ""
-      console.log("CIOOOO")
     }
 
     console.log(excluded_ingredients)
@@ -168,7 +166,8 @@ app.get("/apimeatballs/getrecipe/:sub_name",
       function(result_2){
         recipe = result_2
         meal.recipe = recipe
-        res.send(recipe)
+        delete meal.id
+        res.send(meal)
       },
       function(error_2){
         console.log(error_2)
@@ -193,20 +192,21 @@ app.get("/apimeatballs/nutritionalvalues",
           res.status(404).send("Ingredient not found")
         }
         else{
-          return session.spoonacular.getNutritionalsById(ingredientId)
+          session.spoonacular.getNutritionalsById(ingredientId).then(
+            function(result_2){
+              console.log("Eeeee "+result_2)
+              res.send(result_2)
+            },
+            function(error_2){
+              console.log(error_2)
+              res.status(500).send("Error in getting nutritions")
+            }
+          )
         }
       },
       function(error){
         console.log(error)
         res.status(500).send("Error in verify ingredient")
-      }
-    ).then(
-      function(result){
-        res.send(result)
-      },
-      function(error_2){
-        console.log(error_2)
-        res.status(500).send("Error in getting nutritions")
       }
     )
   }
@@ -215,15 +215,16 @@ app.get("/apimeatballs/nutritionalvalues",
 /* Given the maximum calories and the maximum fat you want to eat, it returns a lists of product you can buy in a supermarket. */
 app.get("/apimeatballs/shoppinglist/:product_type",
   function(req,res){
-    product_type = req.query.params
+    product_type = req.params.product_type
     max_calories = req.query.max_calories
     max_fat = req.query.max_fat
-    if(!isNaN(product_type) || isNan(max_calories) || isNan(max_fat)){
-      ws.status(400)
+    if(!isNaN(product_type) || isNaN(max_calories) || isNaN(max_fat)){
+      res.status(400)
     }
+    //console.log(product_type)
     session.spoonacular.getGroceryProducts(product_type,max_calories,max_fat).then(
       function(result){
-        ws.send(result)
+        res.send(result)
       },
       function(error){
         console.log(error)

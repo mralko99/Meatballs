@@ -10,43 +10,53 @@
     }
   },
   "host" : "localhost:5000",
-  "basePath" : "/",
+  "basePath" : "/apimeatballs",
   "schemes" : [ "http" ],
   "paths" : {
     "/apimeatballs/getrecipe/{sub_name}" : {
       "get" : {
-        "summary" : "returns a recipe including the parameter 'sub_name'in the meal name",
+        "summary" : "Returns a recipe including the parameter 'sub_name'in the meal name as JSON object",
         "produces" : [ "application/json" ],
         "parameters" : [ {
           "name" : "sub_name",
           "in" : "path",
-          "description" : "sub name of recipe",
+          "description" : "Sub name of recipe",
           "required" : true,
-          "type" : "string"
+          "type" : "string",
+          "example" : "pizza"
         },{
           "name" : "max_calories",
           "in" : "query",
-          "descritpiton" : "max number of calories",
+          "descritpiton" : "Max number of calories",
           "required" : true,
-          "type" : "int"
+          "type" : "int",
+          "example" : "2500"
         },{
           "name" : "excluded_ingredients",
           "in" : "query",
-          "descritpiton" : "ingredeints to exlude, e.g. for intollerances, preferences etc..",
+          "descritpiton" : "Ingredeints to exlude, for intollerances, preferences etc..",
           "required" : false,
           "type" : "string, value separated by '-' "
         },{
           "name" : "included_ingredients",
           "in" : "query",
-          "descritpiton" : "ingredeints to include",
+          "descritpiton" : "Ingredients to include",
           "required" : false,
           "type" : "string, value separated by '-' "
         }],
         "responses" : {
           "200" : {
-            "description": "No error, success!!!",
+            "description": "No error, success",
             "schema": {
-              "type": "json"
+              "type": "json",
+              "example":{
+                "title":"Quick and Easy St. Louis-Style Pizza",
+                "calories": "281",
+                "protein":"12g",
+                "fat":"12g",
+                "carbs":"29g",
+                "recipe":"\nStep 1):\nPreheat oven to ..."
+              }
             }
           },
           "400" : {
@@ -60,20 +70,22 @@
     },
     "/apimeatballs/nutritionalvalues" : {
       "get" : {
-        "summary" : "takes a product and return nutritional values ",
-        "produces" : [ "application/json" ],
+        "summary" : "Shows nutritional values of this ingredient as HTML page",
+        "produces" : [ "text/html" ],
         "parameters" : [ {
           "name" : "ingredient",
           "in" : "query",
-          "description" : "view nutritional values of this ingredient",
+          "description" : "Ingredient to analyze",
           "required" : true,
-          "type" : "string"
+          "type" : "string",
+          "example":"flour"
         } ],
         "responses" : {
           "200" : {
             "description": "No error, success",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "example":"<div itemprop=\"nutrition\" itemscope itemtype=\"http://schema.org/NutritionInformation..."
             }
           },
           "400" : {
@@ -87,27 +99,46 @@
     },
     "/apimeatballs/shoppinglist/:product_type" : {
       "get" : {
-        "summary" : "Return a series of produtcs with you can by in a grocery store",
+        "summary" : "Returns 10 produtcs which you can buy in a grocery store in an ARRAY of JSON objects",
         "produces" : [ "application/json" ],
-        "parameters" : [ {
+        "parameters" : [{
+          "name" : "product_type",
+          "in": "path",
+          "description" : "type of product required",
+          "required" : true,
+          "type" : "string",
+          "example" : "butter"
+        }
+        ,{
           "name" : "max_calories",
           "in" : "query",
-          "description" : "max amount of calories",
+          "description" : "Max amount of calories",
           "required" : true,
-          "type" : "int"
+          "type" : "int",
+          "example" : "2500"
         },
         {
           "name" : "max_fat",
           "in" : "query",
-          "description" : "max amount of fat",
-          "required" : false,
-          "type" : "int"
+          "description" : "Max amount of fat",
+          "required" : true,
+          "type" : "int",
+          "example" : "200"
           }],
         "responses" : {
           "200" : {
             "description": "No error, success",
             "schema": {
-              "type": "json"
+              "type": "json",
+              "example": [{
+                "title":"Tnuva Butter",
+                "image":"https://spoonacular.com/productImages/406748-312x231.jpg",
+                "imageType":"jpg"
+              },{
+                "title":"other product",
+                "image":"...",
+                "imageType":"..."
+              }]
             }
           },
           "400" : {
