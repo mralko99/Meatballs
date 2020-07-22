@@ -4,8 +4,8 @@
 
 Meatballs is a web application born with the intent to **satiate** food-related needs of our clients, keeping an eye on the ambient and on the wallet, the whole with the ultimate goal to provide a healthy and tasty diet.
 What Meatballs consists of is a user friendly chatbot who will supply many options for your diet, eventually taking into account food intolerances, ingredients you already possess and don't want to waste and many others features.
-* In-depth view of the chatbot working scheme can be found here: [Chatbot Scheme](https://github.com/mralko99/Proggetto-Reti-di-Calcolatori/blob/master/documents/chatbot%20architecture.pdf)
-* The architecture of the project can be found here: [Project Architecture](https://github.com/mralko99/Proggetto-Reti-di-Calcolatori/blob/master/documents/MeatBALLS%20Architecture%20(1).pdf)
+* In-depth view of the chatbot working scheme can be found here: [Chatbot Scheme](../documents/chatbot architecture.pdf)
+* The architecture of the project can be found here: [Project Architecture](../documents/MeatBALLS Architecture (1).pdf)
 
 
 ## Technologies Used
