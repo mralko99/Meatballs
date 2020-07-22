@@ -2,14 +2,12 @@ function recipe_calories(ws,msg,session){
   //session.user = "ale2"
   switch (session.sub_flow_status) {
     case 0:
-      console.log("meals_planner, status----> 0")
       if(!isNaN(msg)){    //msg should be calories ---> chack
         //funzione provvisoria
         mealsByCalories_promise = session.spoonacular.mealsPlanning(msg,"",""); //dailyMealsByCalories_prova()//DEFNITIVA ---> spoonacular.mealsByCalories(msg, diet,excluded_ingredients)  //return
         mealsByCalories_promise.then(
           function(result){
             calories_meals_json = result
-            console.log(result)
             ws.send("Here is your recipe")
             ws.send(session.spoonacular.mealsPlanning_Stringify(result))      //funzione per trasformare i JSON in stringa
             ws.send("type yes to accept or no to obtain new recipes")
@@ -26,7 +24,6 @@ function recipe_calories(ws,msg,session){
     case 1:
       if(msg == "yes"){
         //###breakfast###
-        console.log("Breakfast")
         date = new Date()                           //salva su DB
         if(date.getHours()>8){
           date.setDate(date.getDate()+1)
@@ -52,7 +49,6 @@ function recipe_calories(ws,msg,session){
           }
         ).then(
           function(result_3){
-            console.log("h")
             date = new Date()                           //salva su DB
             if(date.getHours()>13){
               date.setDate(date.getDate()+1)
@@ -76,7 +72,6 @@ function recipe_calories(ws,msg,session){
           }
         ).then(
           function(result_5){
-            console.log("Dinner")
             date = new Date()                           //salva su DB
             if(date.getHours()>20){
               date.setDate(date.getDate()+1)
