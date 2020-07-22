@@ -228,7 +228,7 @@ app.get("/apimeatballs/shoppinglist/:product_type",
       },
       function(error){
         console.log(error)
-        ws.status(500).send("Error in External API query")
+        res.status(500).send("Error in External API query")
       }
     )
   }

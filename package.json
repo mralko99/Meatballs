@@ -8,11 +8,6 @@
   },
   "scripts": {
     "start": "node app.js",
-    "calendar": "node ./routers/calendar_tests.js",
-    "twitter": "node ./routers/twitter_test.js",
-    "mongoDB": "node ./routers/mongoDB.js",
-    "chatbot": "node ./routers/chatbot.js",
-    "spoonacular": "node ./routers/spoonacular.js",
     "node": "node",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
